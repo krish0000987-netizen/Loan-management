@@ -1,0 +1,21 @@
+{
+  "name": "sniper",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SNIPER — India's Intelligent Lending Operating System (LOS + LMS + CRM + Credit + Collections)",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev:server": "npm run dev -w server",
+    "dev:client": "npm run dev -w client",
+    "seed": "npm run seed -w server",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w client",
+    "build": "npm run build -w client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

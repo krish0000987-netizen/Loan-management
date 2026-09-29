@@ -1,0 +1,2470 @@
+<USER_REQUEST>
+As discussed, I have enabled the below-mentioned APIs in both the UAT and Production environments.
+
+Please find the respective credentials for the UAT and Production environments below for your reference.
+
+Kindly use the appropriate credentials based on the environment being accessed.
+
+Aadhaar E-Sign 
+
+ Digilocker 
+
+ OCR-PAN 
+
+ Face Match 
+
+ Face Liveness 
+
+ OCR-Aadhaar 
+
+ OCR-VoterId 
+
+ OCR-Passport 
+
+ Voterid Validation 
+
+ Passport Validation 
+
+ OTP Based e-Sign 
+
+ OCR-Bank Passbook 
+
+ OCR-Cheque 
+
+ Bank Statement PDF UI 
+
+ Bank Statement NetBanking UI 
+
+ Video PD 
+
+ OCR-GST 
+
+ GST Basic Validation 
+
+ GST Search by PAN 
+
+ EComm Analytics 
+
+ OCR-NACH 
+
+ TDS Quarterly API 
+
+ EPFO Based Emp Verification 
+
+ Common Account Detection 
+
+ MNV - OTP 
+
+ PAN Basic V1 
+
+ OCR- COI 
+
+ PAN Aadhaar Link Validation 
+
+ MNV - Report 
+
+ CIN (COI) Basic Validation 
+
+ Lat-Long to Address 
+
+ MNV Without OTP 
+
+ Name Match 
+
+ RC Advanced Validation 
+
+ DL Validation 
+
+ PAN Details V1 
+
+ GST Advanced Validation 
+
+ UPI Basic 
+
+ Mobile Name Lookup 
+
+ WhatsApp Check 
+
+ Distance between 2 Locations 
+
+ Address to Lat-Long 
+
+ UPI Advanced 
+
+ PAN 206AB compliance check 
+
+ PAN to Masked Aadhaar 
+
+ Video KYC - Unassisted V1 
+
+ Aadhaar to Masked PAN 
+
+ Mobile to UPI Basic 
+
+ Alternate Risk Module V2 
+
+ Mobile to UPI Advanced 
+
+ Mobile to UAN Check 
+
+ PAN to Father Name 
+
+ PAN Basic V2 
+
+ Udyam Basic Validation 
+
+ Udyam Advanced Validation - Generate OTP 
+
+ UAN Basic V3 
+
+ UAN Advanced V3 
+
+ Mobile to Udyam - Udhyam No 
+
+ Reverse RC Lookup 
+
+ Reverse RC Details 
+
+ Bank Account Verification V2 
+
+ Credit Analytics 1 
+
+ UAN Basic V3 
+
+ UAN Advanced V3 
+
+ Udyam Advanced Validation - Submit OTP 
+
+ Mobile to Udyam - OTP 
+
+ BAV V2 - IMPS Penny Drop 
+
+ BAV V2 - IMPS Penniless 
+
+ BAV V2 - UPI Penniless 
+
+ UAN Basic V4 
+
+ UAN Advanced V4 
+
+ Mobile to Address 
+
+ GST to Contact Details 
+
+ PAN Details V2 
+
+ CIN (COI) Advanced Validation 
+
+ PAN TO DIN 
+
+ DIN TO PAN 
+
+ PAN Details Plus 
+
+ CIN (COI) Enhanced Validation 
+
+ Company Name to CIN 
+
+ TAN Validation 
+
+ RC Challan Details 
+
+ Contact to GST 
+
+ RC Validation Plus 
+
+ Company Name to PAN 
+
+ Mobile to Pre-fill 
+
+ Mobile to PAN 
+
+ FSSAI Validation 
+
+ DL Validation Plus API 
+
+ IEC Basic Validation 
+
+ IEC Advanced Validation 
+
+ PAN to Udyam 
+
+ Mobile to Udyam 
+
+ ITR Verification API 
+
+ DIN Basic Validation 
+
+ Video KYC V2 
+
+ TAN Lookup API 
+
+ Establishment Search API 
+
+ CIN to PAN API 
+
+ PAN to CIN API 
+
+ OCR-Driving License 
+
+ ITR Download API (Report Download) 
+
+ ITR Download API (Open URL) 
+
+ Pan Profile API 
+
+ ITR Details API 
+
+ Fastag Toll History 
+
+ Email Verification Basic 
+
+ KYC UDID Validation API 
+
+ Company Name to GST API 
+
+ RC to Mobile 
+
+ Passbook V4 
+
+ Entity Docs Basic 
+
+ Entity Docs Advanced 
+
+ ESIC Verification V1 
+
+ KYC Occupation API 
+
+ LEI Validation Basic 
+
+ Email Verification Advanced - Report 
+
+ EPAN Parsing API 
+
+ Reverse RC Details 
+
+ Email Verification Advanced - OTP 
+
+ Passbook V4 
+
+ Reverse RC Lookup 
+
+
+UAT Credentials 
+Client ID: 07625809
+Secret: ZDIGXAKmmoNoVhukqk5zt9sHKVJ8pcfB
+
+Production Credentials
+Client ID: 01338635
+Secret: frk9siMfZqRqMqaRYkMcZEHgMKhbwnC0
+
+# MASTER IMPLEMENTATION PROMPT — SNIPER DIGITAL LOAN ORIGINATION
+
+You are working directly inside the existing GitHub repository:
+
+`https://github.com/Satyacoder-31/Loan-management`
+
+Repository: `Satyacoder-31/Loan-management`
+Default branch: `main`
+
+## YOUR ROLE
+
+Act as a senior fintech backend + frontend engineer.
+
+Your task is to convert the **existing SNIPER lending platform** into a fully connected digital loan origination → lender submission → approval → eSign → disbursement → LMS flow.
+
+### ABSOLUTE RULE
+
+DO NOT rebuild the application from scratch.
+
+DO NOT create a second LOS.
+
+DO NOT create a second LMS.
+
+DO NOT create a second CRM.
+
+DO NOT create a disconnected customer application database.
+
+DO NOT replace the existing dashboard unnecessarily.
+
+DO NOT migrate frameworks unnecessarily.
+
+First inspect the repository deeply, understand the current implementation, then extend it.
+
+---
+
+# 1. REPOSITORY REALITY — USE THIS AS GROUND TRUTH
+
+The existing project is already a lending operating system named:
+
+`SNIPER — India's Intelligent Lending Operating System`
+
+Current architecture includes:
+
+* React
+* TypeScript
+* Vite
+* Tailwind
+* React Router
+* Express
+* TypeScript
+* PostgreSQL support through `pg`
+* Zod validation
+* existing LOS
+* existing LMS
+* existing CRM
+* KYC
+* documents
+* credit/bureau abstractions
+* BRE
+* underwriting
+* approval matrix
+* sanction
+* KFS
+* agreement
+* eSign sandbox
+* disbursement
+* collections
+* audit
+* RBAC
+* integration hub
+* lender/DSA functionality
+* Supabase integration/provider storage
+
+The repository also contains:
+
+`client/src/pages/ApplicationWorkspace.tsx`
+
+`client/src/pages/Applications.tsx`
+
+`client/src/pages/Customers.tsx`
+
+`client/src/pages/Customer360.tsx`
+
+`client/src/pages/Loans.tsx`
+
+`client/src/pages/LoanWorkspace.tsx`
+
+`client/src/pages/Payments.tsx`
+
+`client/src/pages/Integrations.tsx`
+
+`client/src/pages/Compliance.tsx`
+
+`client/src/pages/BREBuilder.tsx`
+
+`client/src/pages/CreditRisk.tsx`
+
+`client/src/pages/Admin.tsx`
+
+`client/src/pages/Collections.tsx`
+
+`client/src/pages/Reports.tsx`
+
+and reusable components/utilities under:
+
+`client/src/components`
+
+`client/src/lib`
+
+The server already contains dedicated LOS/LMS routes and tests.
+
+The repository also contains:
+
+`server/src/adapters`
+
+and Supabase migrations under:
+
+`supabase/migrations`
+
+Do not assume these systems are missing.
+
+---
+
+# 2. FIRST TASK — FULL REPOSITORY AUDIT
+
+Before changing code, inspect:
+
+## Frontend
+
+* `client/package.json`
+* `client/src/main.tsx`
+* router configuration
+* authentication
+* `client/src/lib/api.ts`
+* `client/src/lib/auth.tsx`
+* `client/src/components/Shell.tsx`
+* `client/src/components/PortalShell.tsx`
+* existing design system
+* existing form components
+* existing modal components
+* existing notifications/toasts
+* existing loaders
+* existing application pages
+* existing customer portal pages
+* existing landing pages
+
+## Backend
+
+Inspect:
+
+* `server/package.json`
+* `server/src/app.ts`
+* `server/src/index.ts`
+* `server/src/db`
+* `server/src/core`
+* `server/src/routes`
+* `server/src/adapters`
+* auth/session code
+* RBAC
+* audit implementation
+* LOS workflow implementation
+* LMS implementation
+* BRE implementation
+* KYC implementation
+* lender implementation
+* disbursement implementation
+* webhook implementation
+* integration hub
+* tests
+
+## Database
+
+Inspect:
+
+* current schema
+* all relevant application tables
+* customer tables
+* KYC tables
+* consent tables
+* documents
+* credit records
+* lender records
+* lender application records
+* offers
+* approval records
+* sanction records
+* agreement/eSign records
+* disbursement records
+* loans
+* repayment schedules
+* audit tables
+* webhook tables
+* integration provider tables
+
+Also inspect:
+
+`supabase/migrations/0001_provider_hub.sql`
+
+and the existing Supabase architecture.
+
+### VERY IMPORTANT
+
+Do not assume PostgreSQL or SQLite based on old documentation.
+
+Read the actual current server database implementation and use the current code path as the source of truth.
+
+If the current production path uses PostgreSQL, continue using PostgreSQL.
+
+Do not introduce a second persistence engine unless the existing architecture explicitly requires it.
+
+---
+
+# 3. BUSINESS OBJECTIVE
+
+Create this complete customer journey:
+
+```text
+Mobile
+↓
+OTP
+↓
+Consent
+↓
+Profile
+↓
+KYC
+↓
+Documents
+↓
+Credit
+↓
+BRE
+↓
+Lender Matching
+↓
+Offers
+↓
+Offer Selection
+↓
+Application Submission
+↓
+Lender Submission
+↓
+Underwriting
+↓
+Approval
+↓
+Sanction
+↓
+Agreement
+↓
+eSign
+↓
+Disbursement
+↓
+Webhook
+↓
+UTR
+↓
+Loan Account
+↓
+Repayment Schedule
+```
+
+The most important requirement:
+
+The customer journey must connect to the existing SNIPER canonical application.
+
+There must be ONE source of truth.
+
+---
+
+# 4. CUSTOMER-FACING APPLICATION
+
+Add a new customer-facing route:
+
+```text
+/apply
+```
+
+This must NOT look like the internal enterprise LOS.
+
+It should be:
+
+* mobile-first
+* clean
+* premium fintech
+* simple
+* fast
+* highly guided
+* one primary CTA per screen
+* progress indicator
+* autosave
+* resumable
+* clear errors
+* accessible
+
+Use the existing SNIPER design language where appropriate without forcing the enterprise dashboard UI into the customer flow.
+
+---
+
+# 5. CUSTOMER JOURNEY SCREENS
+
+Create:
+
+```text
+/apply
+/apply/otp
+/apply/consent
+/apply/profile
+/apply/kyc
+/apply/documents
+/apply/credit
+/apply/loan
+/apply/offers
+/apply/confirm
+/apply/agreement
+/apply/esign
+/apply/disbursement
+/apply/success
+/apply/dashboard
+```
+
+Routing may be implemented differently if the current router architecture favors another approach.
+
+Do not blindly create all files if equivalent existing components can be reused.
+
+---
+
+# 6. SERVER-AUTHORITATIVE JOURNEY
+
+Create a journey abstraction only if the current schema does not already provide equivalent functionality.
+
+Possible concept:
+
+```text
+origination_journeys
+```
+
+Potential fields:
+
+```text
+id
+tenant_id
+customer_id
+application_id
+mobile
+mobile_verified
+current_step
+status
+source
+session_reference
+created_at
+updated_at
+expires_at
+```
+
+Before creating it, inspect existing tables and reuse them where practical.
+
+Never rely on frontend localStorage as the source of truth.
+
+The server must determine:
+
+```text
+current_step
+completed_steps
+status
+application_id
+```
+
+---
+
+# 7. APPLICATION STATE MACHINE
+
+Implement a dedicated backend workflow/state machine.
+
+Customer-facing states:
+
+```text
+MOBILE_ENTERED
+OTP_PENDING
+OTP_VERIFIED
+CONSENT_PENDING
+CONSENT_COMPLETED
+PROFILE_PENDING
+PROFILE_COMPLETED
+KYC_PENDING
+KYC_IN_PROGRESS
+KYC_COMPLETED
+CREDIT_PENDING
+CREDIT_IN_PROGRESS
+CREDIT_COMPLETED
+LENDER_MATCHING
+LENDER_MATCHED
+OFFER_SELECTED
+APPLICATION_SUBMITTED
+UNDERWRITING
+APPROVED
+SANCTIONED
+AGREEMENT_PENDING
+ESIGN_PENDING
+ESIGN_COMPLETED
+DISBURSEMENT_PENDING
+DISBURSEMENT_PROCESSING
+DISBURSED
+REJECTED
+CANCELLED
+EXPIRED
+```
+
+Never allow React to directly set these statuses.
+
+Every transition must happen through backend logic.
+
+Every transition must log:
+
+```text
+application_id
+old_status
+new_status
+actor
+actor_type
+timestamp
+source
+metadata
+provider_reference
+request_id
+IP where appropriate
+device/user-agent where appropriate
+```
+
+Reuse the existing audit service.
+
+---
+
+# 8. MOBILE START
+
+Implement:
+
+```http
+POST /api/origination/mobile/start
+```
+
+Request:
+
+```json
+{
+  "mobile": "9876543210",
+  "product_id": 1,
+  "source": "digital"
+}
+```
+
+Backend:
+
+1. normalize mobile
+2. validate Indian mobile format
+3. rate-limit attempts
+4. prevent enumeration
+5. find/create customer
+6. find/create canonical application or journey
+7. create OTP challenge
+8. hash OTP
+9. set expiry
+10. create/update journey session
+11. return opaque journey token
+
+Never return OTP in production.
+
+Response:
+
+```json
+{
+  "journey_id": "uuid",
+  "masked_mobile": "******3210",
+  "expires_in": 300,
+  "next_step": "otp"
+}
+```
+
+---
+
+# 9. OTP
+
+Implement:
+
+```http
+POST /api/origination/otp/send
+POST /api/origination/otp/verify
+```
+
+Verification:
+
+```json
+{
+  "journey_id": "uuid",
+  "otp": "123456"
+}
+```
+
+Requirements:
+
+* hashed OTP only
+* expiry
+* attempt limit
+* resend throttling
+* invalidation after successful verification
+* authenticated origination session
+* determine resume step
+* separate from employee login
+
+Demo behavior may support mock OTP through explicit environment configuration.
+
+Production must never silently use mock OTP.
+
+---
+
+# 10. CONSENT
+
+Implement:
+
+```http
+POST /api/origination/consent
+```
+
+Consent categories:
+
+```text
+kyc
+pan
+credit_bureau
+banking
+lender_matching
+communications
+document_processing
+```
+
+Persist through the existing consent architecture whenever possible.
+
+Store:
+
+```text
+customer
+purpose
+version
+timestamp
+IP
+device
+channel
+text/version identifier
+provider/product
+status
+```
+
+Do not call third-party providers before required consent exists.
+
+---
+
+# 11. PROFILE
+
+Create a progressive profile.
+
+Personal:
+
+```text
+full_name
+dob
+gender
+email
+address
+city
+state
+pincode
+```
+
+Employment:
+
+```text
+employment_type
+employer_name
+business_name
+monthly_income
+annual_income
+business_turnover
+business_vintage
+```
+
+Loan requirement:
+
+```text
+loan_type
+requested_amount
+tenure
+purpose
+```
+
+Persist after every completed section.
+
+Implement:
+
+```http
+GET /api/origination/profile
+PATCH /api/origination/profile
+```
+
+Do not require one giant final request.
+
+---
+
+# 12. KYC ORCHESTRATION
+
+Use the existing adapter infrastructure.
+
+Do NOT hard-code Digitap/KYC provider logic into React.
+
+Create/reuse:
+
+```text
+KycOrchestrator
+```
+
+Responsibilities:
+
+* verify consent
+* choose configured adapter
+* call provider
+* normalize result
+* persist result
+* provider reference
+* audit
+* retry handling
+* duplicate prevention
+* timeout handling
+* sensitive field masking
+
+Possible flow:
+
+```text
+PAN
+↓
+PAN details
+↓
+identity matching
+↓
+KYC/OVD
+↓
+address verification
+↓
+document verification
+↓
+KYC complete
+```
+
+Never store raw Aadhaar.
+
+Never expose provider secrets.
+
+Use the existing Digitap integration where configured.
+
+Before creating new adapter code, inspect:
+
+```text
+server/src/adapters
+docs/digitap-integration.md
+docs/digitap-enablement-report.md
+```
+
+Use currently enabled provider capabilities only.
+
+Do not claim an unavailable provider API is live.
+
+---
+
+# 13. DOCUMENTS
+
+Reuse the existing document model.
+
+Document checklist should be driven by:
+
+```text
+loan product
+employment type
+applicant type
+lender requirements
+```
+
+Support:
+
+```text
+PAN
+address proof
+bank statement
+salary slip
+ITR
+GST
+Udyam
+business proof
+photograph
+lender-specific documents
+```
+
+Implement/reuse:
+
+```http
+POST /api/origination/documents
+GET /api/origination/documents
+DELETE /api/origination/documents/:id
+```
+
+Security:
+
+* MIME validation
+* size validation
+* secure storage keys
+* do not trust filenames
+* signed URLs
+* sensitive file encryption
+* versioning
+* verification history
+* malware scanning when infrastructure supports it
+
+---
+
+# 14. CREDIT ORCHESTRATION
+
+Create/reuse:
+
+```text
+CreditOrchestrator
+```
+
+Potential bureaus already represented by the architecture:
+
+```text
+CIBIL
+Experian
+Equifax
+CRIF
+```
+
+Do not expose raw provider JSON to frontend.
+
+Normalized structure:
+
+```json
+{
+  "status": "completed",
+  "score": 758,
+  "score_band": "good",
+  "active_accounts": 3,
+  "overdue_accounts": 0,
+  "total_outstanding": 185000,
+  "enquiries_6m": 2
+}
+```
+
+Implement:
+
+```http
+POST /api/origination/credit/check
+GET /api/origination/credit/status
+```
+
+If no live bureau integration is currently enabled, demo/sandbox behavior must be explicit.
+
+Never make frontend credit decisions.
+
+---
+
+# 15. BRE
+
+Reuse the existing Business Rules Engine.
+
+Do NOT implement lender credit policy inside React.
+
+Do NOT replace the existing BRE.
+
+Inputs:
+
+```text
+profile
+kyc
+credit
+documents
+product rules
+income
+FOIR
+exposure
+risk grade
+```
+
+Output:
+
+```json
+{
+  "eligible": true,
+  "decision": "REFER",
+  "score": 78,
+  "reasons": []
+}
+```
+
+BRE rules must remain configurable.
+
+---
+
+# 16. LENDER MATCHING ENGINE
+
+This is the major new functionality.
+
+Create/reuse:
+
+```text
+LenderMatchingEngine
+```
+
+Input:
+
+```text
+customer profile
+loan type
+requested amount
+tenure
+income
+employment
+business details
+KYC
+credit score
+bureau history
+geography
+product
+risk grade
+lender eligibility rules
+lender availability
+lender API health
+```
+
+Lender rules must be configurable.
+
+Possible rule fields:
+
+```text
+minimum_age
+maximum_age
+minimum_income
+minimum_business_vintage
+minimum_credit_score
+maximum_foir
+minimum_amount
+maximum_amount
+allowed_states
+allowed_employment_types
+allowed_loan_types
+required_documents
+required_kyc
+required_provider_checks
+risk_grades
+```
+
+Output:
+
+```json
+[
+  {
+    "lender_id": 101,
+    "lender_name": "Lender A",
+    "eligible": true,
+    "match_score": 92,
+    "eligible_amount": 500000,
+    "rate_from": 12.5,
+    "rate_to": 16.5,
+    "tenure_from": 12,
+    "tenure_to": 48,
+    "estimated_emi": 15420,
+    "processing_fee": 7500,
+    "status": "matched"
+  }
+]
+```
+
+Important:
+
+A lender match is NOT an approval.
+
+Frontend wording:
+
+```text
+Eligible to apply
+Indicative offer
+Subject to lender approval
+Final terms subject to underwriting
+```
+
+Never display guaranteed approval.
+
+---
+
+# 17. OFFERS
+
+Implement:
+
+```http
+GET /api/origination/offers
+POST /api/origination/offers/:id/select
+```
+
+Offer card:
+
+```text
+Lender logo/name
+Match %
+Eligible amount
+Indicative interest rate
+Tenure
+Estimated EMI
+Processing fee
+Total cost where available
+Conditions
+Expiry
+Processing time if available
+CTA
+```
+
+Never hide fees.
+
+Offer information must be backend-generated.
+
+---
+
+# 18. CANONICAL APPLICATION
+
+When an offer is selected, connect the customer journey to the existing application model.
+
+DO NOT create an isolated second application.
+
+Implement:
+
+```http
+POST /api/origination/application/submit
+GET /api/origination/application
+```
+
+Before submitting validate:
+
+```text
+journey valid
+consent valid
+KYC complete
+credit complete
+required documents complete
+lender selected
+offer valid
+offer not expired
+```
+
+Then:
+
+1. create/update canonical application
+2. assign application number
+3. link customer
+4. link lender
+5. create lender application mapping
+6. write audit
+7. create timeline event
+8. advance workflow
+9. return tracking information
+
+Response example:
+
+```json
+{
+  "application_id": 12345,
+  "application_no": "APP26000123",
+  "status": "submitted",
+  "next_step": "underwriting"
+}
+```
+
+---
+
+# 19. EXISTING LOS CONNECTION
+
+A customer application created via `/apply` MUST appear in the existing:
+
+```text
+Applications
+ApplicationWorkspace
+Customer360
+LOS
+```
+
+Do not create a separate operations dashboard.
+
+Add/display:
+
+```text
+Origin: Digital Origination
+Source: DIGITAL
+```
+
+Existing internal users should see:
+
+```text
+Mobile ✓
+OTP ✓
+Consent ✓
+Profile ✓
+KYC ✓
+Documents ✓
+Credit ✓
+BRE ✓
+Lender Match ✓
+Offer ✓
+Application ✓
+Underwriting ...
+Approval ...
+Sanction ...
+Agreement ...
+eSign ...
+Disbursement ...
+```
+
+Add filters where practical:
+
+```text
+Digital Applications
+Stage
+Lender
+Product
+Source
+Disbursement Status
+```
+
+---
+
+# 20. LENDER ADAPTER
+
+Reuse existing lender infrastructure.
+
+If an abstraction is missing, implement an interface similar to:
+
+```typescript
+interface LenderAdapter {
+  createApplication(input): Promise<LenderApplicationResult>;
+  uploadDocument(input): Promise<DocumentResult>;
+  getApplicationStatus(input): Promise<LenderStatusResult>;
+  acceptOffer(input): Promise<Result>;
+  executeAgreement(input): Promise<Result>;
+  requestDisbursement(input): Promise<DisbursementResult>;
+}
+```
+
+Lender-specific code belongs inside adapters.
+
+Never put lender-specific API logic inside generic routes.
+
+---
+
+# 21. UNDERWRITING
+
+Connect directly to the existing underwriting workspace.
+
+Show:
+
+```text
+Customer
+KYC
+Documents
+Credit
+Banking
+GST
+BRE
+Fraud signals
+Loan requirement
+Lender match
+Offer
+Exceptions
+Timeline
+```
+
+Reuse current underwriting screens/components.
+
+Do not build duplicate underwriting.
+
+---
+
+# 22. APPROVAL + SANCTION
+
+On approval, reuse existing approval matrix.
+
+Persist immutable sanction:
+
+```text
+sanctioned_amount
+interest_rate
+tenure
+EMI
+processing_fee
+insurance
+other_charges
+net_disbursement
+lender
+sanction_reference
+sanction_date
+expiry
+conditions
+```
+
+Do not overwrite historical sanction records.
+
+Use versioning/audit where necessary.
+
+---
+
+# 23. KFS / AGREEMENT
+
+Reuse existing KFS capability.
+
+Customer must see:
+
+```text
+Loan amount
+Interest rate
+Tenure
+EMI
+Fees
+Repayment schedule
+Lender
+Important terms
+```
+
+Then:
+
+```text
+Accept
+↓
+Agreement
+↓
+eSign
+↓
+Success
+```
+
+Implement/reuse:
+
+```http
+POST /api/origination/agreement
+POST /api/origination/esign/start
+GET /api/origination/esign/status
+```
+
+Never mark eSign complete merely because the browser returned from a provider.
+
+Use provider status/webhook.
+
+---
+
+# 24. DISBURSEMENT
+
+This must connect to the existing disbursement architecture.
+
+Do not simply set:
+
+```text
+status = DISBURSED
+```
+
+Required flow:
+
+```text
+Approved
+↓
+Sanction
+↓
+Agreement Signed
+↓
+eSign Verified
+↓
+Bank Verified
+↓
+Conditions Met
+↓
+Disbursement Request
+↓
+Lender Adapter
+↓
+Processing
+↓
+Webhook
+↓
+UTR / Provider Reference
+↓
+Success
+↓
+LMS Loan Account
+↓
+Repayment Schedule
+```
+
+Implement/reuse:
+
+```text
+DisbursementOrchestrator
+```
+
+Endpoint:
+
+```http
+POST /api/origination/disbursement/request
+GET /api/origination/disbursement/status
+```
+
+Before request verify:
+
+```text
+application belongs to tenant
+application approved
+sanction exists
+agreement signed
+eSign verified
+bank verified
+mandatory conditions complete
+amount <= sanction
+no successful previous disbursement
+no in-flight duplicate
+lender supports product
+required consent valid
+no block/fraud state
+```
+
+---
+
+# 25. DISBURSEMENT IDEMPOTENCY
+
+Every disbursement request needs:
+
+```text
+Idempotency-Key
+```
+
+Example:
+
+```text
+DISB-12345-202609180001
+```
+
+Repeated request MUST return the existing transaction.
+
+Never issue two financial transfers due to a double-click or retry.
+
+---
+
+# 26. DISBURSEMENT STATE MACHINE
+
+Use:
+
+```text
+NOT_READY
+READY
+REQUESTED
+PROCESSING
+SUCCESS
+FAILED
+REVERSED
+CANCELLED
+```
+
+Persist:
+
+```text
+application_id
+loan_id
+lender_id
+requested_amount
+approved_amount
+actual_disbursed_amount
+request_id
+provider_reference
+UTR
+bank_account_id
+requested_at
+processed_at
+completed_at
+failure_code
+failure_reason
+webhook_event_id
+idempotency_key
+```
+
+Financial history must be immutable.
+
+Corrections use adjustments/reversals.
+
+---
+
+# 27. WEBHOOKS
+
+Reuse the existing webhook infrastructure.
+
+Endpoint:
+
+```http
+POST /api/webhooks/:provider
+```
+
+Webhook process:
+
+1. verify signature
+2. verify timestamp/replay protection
+3. identify provider
+4. resolve application
+5. validate tenant
+6. securely persist event
+7. hash payload
+8. deduplicate
+9. process transactionally
+10. update status
+11. store UTR/provider reference
+12. write audit
+13. return 2xx only after safe persistence/acceptance
+
+Events:
+
+```text
+APPLICATION_RECEIVED
+UNDERWRITING_STARTED
+APPROVED
+REJECTED
+SANCTIONED
+AGREEMENT_GENERATED
+ESIGN_COMPLETED
+DISBURSEMENT_INITIATED
+DISBURSEMENT_PROCESSING
+DISBURSEMENT_SUCCESS
+DISBURSEMENT_FAILED
+DISBURSEMENT_REVERSED
+```
+
+The same webhook sent 10 times must result in one business transition.
+
+Handle out-of-order webhooks safely.
+
+---
+
+# 28. LMS CONNECTION
+
+On successful disbursement, use the EXISTING LMS.
+
+Do not create another loan ledger.
+
+Create/update:
+
+```text
+loan account
+principal
+interest rate
+tenure
+EMI
+first due date
+maturity date
+repayment schedule
+lender reference
+disbursement date
+```
+
+Customer success screen:
+
+```text
+Loan Disbursed Successfully
+
+Loan Account: LN...
+Amount Disbursed: ₹...
+EMI: ₹...
+Tenure: ... months
+First EMI: ...
+```
+
+The loan must appear in existing:
+
+```text
+Loans
+LoanWorkspace
+Payments
+Collections
+Reports
+Customer360
+```
+
+---
+
+# 29. CUSTOMER TRACKING DASHBOARD
+
+After submission show:
+
+```text
+Application Tracker
+
+✓ Mobile verified
+✓ Consent completed
+✓ Profile completed
+✓ KYC completed
+✓ Documents completed
+✓ Credit checked
+✓ Lenders matched
+✓ Offer selected
+✓ Application submitted
+→ Underwriting
+→ Approval
+→ Agreement
+→ Disbursement
+```
+
+After disbursement show LMS loan dashboard.
+
+---
+
+# 30. RESUME JOURNEY
+
+Implement:
+
+```http
+GET /api/origination/journey
+```
+
+Response:
+
+```json
+{
+  "journey_id": "...",
+  "application_id": 123,
+  "current_step": "credit",
+  "completed_steps": [
+    "mobile",
+    "otp",
+    "consent",
+    "profile",
+    "kyc"
+  ],
+  "status": "CREDIT_IN_PROGRESS"
+}
+```
+
+If customer closes browser after KYC, reopening with the same verified mobile/session must resume at the correct server-side step.
+
+Never restart automatically.
+
+Never trust localStorage for business state.
+
+---
+
+# 31. DATABASE CHANGES
+
+Before every migration:
+
+```text
+SEARCH EXISTING TABLES
+SEARCH EXISTING SERVICES
+SEARCH EXISTING ROUTES
+SEARCH EXISTING DOMAIN TYPES
+```
+
+Potential new concepts:
+
+```text
+origination_journeys
+otp_challenges
+journey_steps
+credit_checks
+lender_matches
+loan_offers
+disbursement_transactions
+webhook_events
+idempotency_keys
+```
+
+Create only when an equivalent does not already exist.
+
+Every new table needs appropriate tenant isolation.
+
+---
+
+# 32. TENANT ISOLATION
+
+Every business query must enforce tenant scope.
+
+Never trust IDs coming from frontend:
+
+```text
+application_id
+customer_id
+lender_id
+document_id
+disbursement_id
+loan_id
+```
+
+Resolve them through authenticated tenant/journey context.
+
+Cross-tenant access MUST be impossible.
+
+Add tests specifically for this.
+
+---
+
+# 33. SECURITY
+
+Implement/reuse:
+
+* server-side validation
+* Zod
+* authentication
+* authorization
+* tenant isolation
+* OTP throttling
+* rate limiting
+* brute-force protection
+* session expiry
+* strict CORS
+* secure cookies/tokens
+* CSRF protection where applicable
+* request IDs
+* structured logs
+* secrets in environment variables only
+* sensitive-data encryption where required
+* masking
+* signed document URLs
+* audit logs
+* idempotency
+* webhook signature verification
+* replay protection
+* duplicate transaction protection
+
+Never expose:
+
+```text
+API keys
+client secrets
+provider credentials
+Supabase service key
+raw sensitive payloads
+access tokens
+database credentials
+raw Aadhaar
+stack traces
+SQL errors
+```
+
+---
+
+# 34. ENVIRONMENT MODES
+
+Explicitly support:
+
+```text
+DEMO
+SANDBOX
+PRODUCTION
+```
+
+Recommended:
+
+```env
+APP_ENV=demo
+```
+
+Rules:
+
+### DEMO
+
+Mock providers are permitted.
+
+### SANDBOX
+
+Only explicitly configured sandbox adapters.
+
+### PRODUCTION
+
+Real configured providers only.
+
+If production credentials/configuration are missing:
+
+FAIL CLEARLY.
+
+Never silently use mocks.
+
+Never simulate successful financial disbursement in production.
+
+---
+
+# 35. DIGITAP / PROVIDER RULE
+
+Use the existing integration hub.
+
+Inspect:
+
+```text
+server/src/adapters/digitap.ts
+docs/digitap-integration.md
+docs/digitap-enablement-report.md
+```
+
+Provider calls happen only server-side.
+
+The frontend must receive only normalized results.
+
+Do not assume every Digitap product is enabled.
+
+The provider state must be derived from actual configuration/test status.
+
+---
+
+# 36. API STRUCTURE
+
+Implement or reuse:
+
+```text
+POST   /api/origination/mobile/start
+POST   /api/origination/otp/send
+POST   /api/origination/otp/verify
+
+GET    /api/origination/journey
+
+GET    /api/origination/profile
+PATCH  /api/origination/profile
+
+POST   /api/origination/consent
+
+POST   /api/origination/kyc/start
+POST   /api/origination/kyc/verify
+GET    /api/origination/kyc/status
+
+POST   /api/origination/documents
+GET    /api/origination/documents
+DELETE /api/origination/documents/:id
+
+POST   /api/origination/credit/check
+GET    /api/origination/credit/status
+
+POST   /api/origination/lenders/match
+GET    /api/origination/lenders
+
+GET    /api/origination/offers
+POST   /api/origination/offers/:id/select
+
+POST   /api/origination/application/submit
+GET    /api/origination/application
+
+GET    /api/origination/sanction
+
+POST   /api/origination/agreement
+POST   /api/origination/esign/start
+GET    /api/origination/esign/status
+
+POST   /api/origination/disbursement/request
+GET    /api/origination/disbursement/status
+
+POST   /api/webhooks/:provider
+```
+
+Before creating each endpoint, search the repository to see whether an equivalent endpoint already exists.
+
+Reuse where possible.
+
+---
+
+# 37. ERROR CONTRACT
+
+All external API failures must normalize into a consistent structure:
+
+```json
+{
+  "code": "KYC_PROVIDER_TIMEOUT",
+  "message": "KYC provider is temporarily unavailable.",
+  "retryable": true,
+  "request_id": "REQ..."
+}
+```
+
+Customer sees friendly messages.
+
+Internal logs contain diagnostics.
+
+Never expose stack traces or secrets.
+
+---
+
+# 38. RETRY POLICY
+
+Classify:
+
+```text
+RETRYABLE
+NON_RETRYABLE
+CONSENT_REQUIRED
+INVALID_INPUT
+PROVIDER_REJECTED
+TIMEOUT
+RATE_LIMITED
+```
+
+Only automatically retry operations that are safe to retry.
+
+Never blindly retry financial transfers.
+
+Use provider-supported idempotency where available.
+
+---
+
+# 39. OBSERVABILITY
+
+Every request:
+
+```text
+request_id
+```
+
+Every provider call:
+
+```text
+provider
+provider_request_id
+latency
+status
+error_code
+```
+
+Every workflow transition:
+
+```text
+application_id
+old_state
+new_state
+actor
+timestamp
+```
+
+Use structured logs.
+
+---
+
+# 40. FRONTEND UX REQUIREMENTS
+
+Customer UI:
+
+* excellent mobile responsiveness
+* premium fintech appearance
+* clear progress
+* sticky primary CTA where useful
+* autosave
+* skeleton loaders
+* good validation
+* retry states
+* provider error states
+* file upload progress
+* confirmation dialogs for sensitive actions
+* fee transparency
+* clear loan calculations
+* accessible controls
+* keyboard support
+* no giant LOS tables
+
+Use existing:
+
+```text
+ui.tsx
+design tokens
+icons
+motion utilities
+API client
+routing
+auth primitives
+```
+
+where appropriate.
+
+---
+
+# 41. DO NOT DAMAGE EXISTING INTERNAL UI
+
+Existing internal SNIPER pages must continue working.
+
+Especially verify:
+
+```text
+Dashboard
+Applications
+ApplicationWorkspace
+Customers
+Customer360
+Loans
+LoanWorkspace
+Payments
+Collections
+Compliance
+Integrations
+Admin
+Reports
+BRE
+CreditRisk
+```
+
+The customer flow should be additive.
+
+Do not redesign the internal dashboard unless required for integration.
+
+---
+
+# 42. TESTING
+
+Run existing test suite before modifications.
+
+After implementation add:
+
+## Unit tests
+
+* OTP hashing
+* OTP expiry
+* OTP attempts
+* workflow transitions
+* EMI calculations
+* lender matching
+* eligibility
+* idempotency
+* webhook deduplication
+
+## Integration tests
+
+```text
+mobile → OTP
+OTP → consent
+consent → profile
+profile → KYC
+KYC → documents
+documents → credit
+credit → BRE
+BRE → lender match
+lender match → offer
+offer → application
+application → lender
+lender → approval
+approval → sanction
+sanction → eSign
+eSign → disbursement
+disbursement → LMS
+```
+
+## Failure tests
+
+OTP:
+
+* wrong OTP
+* expired OTP
+* max attempts
+* resend
+* provider timeout
+
+KYC:
+
+* invalid PAN
+* mismatch
+* timeout
+* retry
+* duplicate call
+
+Credit:
+
+* unavailable
+* no bureau
+* low score
+* obligations
+
+Lender:
+
+* no matches
+* one match
+* multiple matches
+* lender unavailable
+* expired offer
+
+Application:
+
+* missing documents
+* missing consent
+* duplicate submission
+* double-click
+
+Disbursement:
+
+* duplicate request
+* timeout
+* duplicate webhook
+* out-of-order webhook
+* failed transfer
+* successful transfer
+* reversal
+
+Security:
+
+* cross-tenant access
+* invalid journey token
+* expired session
+* unauthorized employee
+* forged webhook
+* replayed webhook
+
+---
+
+# 43. E2E SCENARIOS
+
+At minimum implement tests for:
+
+```text
+HAPPY PATH
+KYC FAILURE
+CREDIT FAILURE
+NO LENDER MATCH
+LENDER REJECTION
+DISBURSEMENT FAILURE
+DISBURSEMENT SUCCESS
+```
+
+---
+
+# 44. MIGRATION STRATEGY
+
+Implement incrementally.
+
+## Phase 1
+
+Customer journey:
+
+```text
+journey
+OTP
+consent
+profile
+```
+
+## Phase 2
+
+```text
+KYC
+documents
+```
+
+## Phase 3
+
+```text
+credit
+BRE
+```
+
+## Phase 4
+
+```text
+lender matching
+offers
+```
+
+## Phase 5
+
+```text
+canonical application
+lender submission
+```
+
+## Phase 6
+
+```text
+approval
+sanction
+agreement
+eSign
+```
+
+## Phase 7
+
+```text
+disbursement
+webhooks
+LMS
+```
+
+## Phase 8
+
+```text
+security hardening
+performance
+observability
+tests
+```
+
+Every phase must leave the repository compiling.
+
+---
+
+# 45. IMPLEMENTATION PROCESS
+
+Follow this exact order:
+
+```text
+1. Audit repository
+2. Map current architecture
+3. Identify reusable domain models
+4. Identify existing routes
+5. Identify reusable frontend components
+6. Identify missing functionality
+7. Design minimum migrations
+8. Implement backend services
+9. Implement state machine
+10. Implement API routes
+11. Implement customer UI
+12. Connect existing LOS
+13. Connect lender adapter
+14. Connect eSign
+15. Connect disbursement
+16. Connect webhooks
+17. Connect LMS
+18. Add tests
+19. Run typecheck
+20. Run tests
+21. Run production build
+22. Fix all errors
+```
+
+Do not stop after creating UI screens.
+
+---
+
+# 46. NO MOCK LOGIC IN PRODUCTION
+
+The repository already contains demo/sandbox behavior.
+
+Separate:
+
+```text
+demo
+sandbox
+production
+```
+
+Mocks are allowed only in explicit demo/sandbox mode.
+
+Never let fake:
+
+```text
+KYC
+credit
+lender approval
+eSign
+disbursement
+UTR
+```
+
+appear as real production results.
+
+---
+
+# 47. SUPABASE / POSTGRES
+
+The repository contains Supabase migrations and provider-storage architecture.
+
+Use Supabase where the current architecture intends it.
+
+Server secrets remain server-side:
+
+```text
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+Never send service-role credentials to React.
+
+Do not create a second database simply because Supabase exists.
+
+Use the repository's established database architecture.
+
+---
+
+# 48. ENV FILE
+
+Update:
+
+```text
+server/.env.example
+```
+
+as needed.
+
+At minimum document:
+
+```env
+DATABASE_URL=
+DATABASE_SSL=
+
+NEXUS_AUTH_SECRET=
+
+APP_ENV=
+
+OTP_PROVIDER=
+OTP_API_URL=
+OTP_API_KEY=
+
+KYC_PROVIDER=
+KYC_API_URL=
+KYC_API_KEY=
+
+CREDIT_PROVIDER=
+CREDIT_API_URL=
+CREDIT_API_KEY=
+
+ESIGN_PROVIDER=
+ESIGN_API_URL=
+ESIGN_API_KEY=
+
+DISBURSEMENT_PROVIDER=
+DISBURSEMENT_API_URL=
+DISBURSEMENT_API_KEY=
+
+WEBHOOK_SECRET=
+
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+Never commit real credentials.
+
+---
+
+# 49. PRODUCTION ARCHITECTURE
+
+The final system must behave as:
+
+```text
+CUSTOMER
+   ↓
+/apply
+   ↓
+ORIGINATION JOURNEY
+   ↓
+ORIGINATION ORCHESTRATOR
+   ↓
+CANONICAL APPLICATION
+   ↓
+EXISTING LOS
+   ↓
+BRE / UNDERWRITING
+   ↓
+LENDER MATCHING
+   ↓
+LENDER ADAPTER
+   ↓
+APPROVAL
+   ↓
+SANCTION
+   ↓
+AGREEMENT
+   ↓
+eSIGN
+   ↓
+DISBURSEMENT ORCHESTRATOR
+   ↓
+LENDER / PROVIDER
+   ↓
+WEBHOOK
+   ↓
+UTR
+   ↓
+EXISTING LMS
+   ↓
+REPAYMENT SCHEDULE
+   ↓
+COLLECTIONS
+```
+
+ONE source of truth for:
+
+```text
+Customer
+Application
+Lender Application
+Offer
+Sanction
+Disbursement
+Loan
+```
+
+---
+
+# 50. DEFINITION OF DONE
+
+Do not declare completion until:
+
+* customer starts with mobile
+* OTP verification works
+* consent is persisted
+* profile persists incrementally
+* journey resumes
+* KYC goes through adapter architecture
+* document upload works
+* credit orchestration works
+* BRE execute
+
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-18T07:00:18+05:30.
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Gemini 3.8 Flash (High). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>
