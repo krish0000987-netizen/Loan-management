@@ -21,7 +21,9 @@ import {
   Database,
   Lock,
   Radio,
-  Server
+  Server,
+  AlertTriangle,
+  Info
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -39,50 +41,52 @@ interface FetchResponse {
     creditBureauProvider: string;
   };
   identity: {
-    subscriberName: string;
+    subscriberName: string | null;
     mobileNumber: string;
-    carrier: string;
-    circle: string;
-    simType: string;
+    carrier: string | null;
+    circle: string | null;
+    simType: string | null;
     simStatus: string;
-    registeredAddress: string;
-    telecomMatchScore: number;
+    telecomStatus: string;
+    telecomError?: string | null;
     verifiedViaDigitap: boolean;
   };
   aadhaar: {
-    maskedAadhaar: string;
-    aadhaarLinkedToPan: boolean;
+    maskedAadhaar: string | null;
+    aadhaarLinkedToPan: boolean | null;
     aadhaarLinkedToMobile: boolean;
-    uidaiSeedingStatus: string;
+    uidaiSeedingStatus: string | null;
     verificationStatus: string;
     source: string;
   };
   pan: {
-    panNumber: string;
-    maskedPan: string;
-    holderName: string;
-    category: string;
-    status: string;
-    aadhaarLinked: boolean;
-    section206abCompliance: string;
-    panAllotmentStatus: string;
+    panNumber: string | null;
+    maskedPan: string | null;
+    holderName: string | null;
+    category: string | null;
+    status: string | null;
+    aadhaarLinked: boolean | null;
+    section206abCompliance: string | null;
+    error?: string | null;
     source: string;
   };
   experian: {
-    score: number;
-    scoreBand: string;
-    scoreRange: string;
-    totalAccounts: number;
-    activeAccounts: number;
-    closedAccounts: number;
-    overdueAccounts: number;
-    totalOutstanding: number;
-    creditUtilization: number;
-    enquiries6m: number;
-    dpdMax: number;
-    repaymentTrack: string;
-    creditAge: string;
-    providerRef: string;
+    status: string;
+    message?: string | null;
+    score: number | null;
+    scoreBand: string | null;
+    scoreRange: string | null;
+    totalAccounts: number | null;
+    activeAccounts: number | null;
+    closedAccounts: number | null;
+    overdueAccounts: number | null;
+    totalOutstanding: number | null;
+    creditUtilization: number | null;
+    enquiries6m: number | null;
+    dpdMax: number | null;
+    repaymentTrack: string | null;
+    creditAge: string | null;
+    providerRef: string | null;
     tradelines: Array<{
       accountNumber: string;
       lender: string;
@@ -100,7 +104,7 @@ interface FetchResponse {
 
 export default function DigitapTestPortal() {
   const [mobile, setMobile] = useState("9820123456");
-  const [pan, setPan] = useState("BZXPM1234F");
+  const [pan, setPan] = useState("");
   const [otp, setOtp] = useState("");
   const [env, setEnv] = useState<"uat" | "prod">("uat");
   const [journeyToken, setJourneyToken] = useState("");
@@ -223,7 +227,7 @@ export default function DigitapTestPortal() {
                 LIVE PORTAL
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">Mobile OTP Consent & KYC Bureau Intelligence Suite</p>
+            <p className="text-[11px] text-slate-400">Mobile OTP Consent & Real Provider Data Verification</p>
           </div>
         </div>
 
@@ -273,12 +277,11 @@ export default function DigitapTestPortal() {
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                CellX SMS OTP & Digitap 360° Data Verification Portal
+                CellX SMS OTP & Real Digitap Data Portal
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
-                Enter any Indian mobile number to trigger an authentic CellX SMS OTP and instantly pull the complete Digitap KYC profile:
-                <strong className="text-white"> Masked Aadhaar</strong>, <strong className="text-white">PAN Verification</strong>,
-                <strong className="text-white"> Experian Credit Score & Tradelines</strong>, and <strong className="text-white">Reverse Telecom Intelligence</strong>.
+                Connects directly to the live Digitap APIs to fetch <strong>REAL provider data</strong> for the provided mobile number.
+                No hardcoded fake profiles. Transparent live response codes and raw provider envelopes.
               </p>
             </div>
 
@@ -321,28 +324,28 @@ export default function DigitapTestPortal() {
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <Smartphone className="w-4 h-4 text-emerald-400" />
-              <span>Step 1: Test Input Parameters</span>
+              <span>Step 1: Input Parameters</span>
             </h2>
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400 hidden sm:inline">Quick Test Numbers:</span>
+              <span className="text-slate-400 hidden sm:inline">Digitap UAT Pre-seeded Numbers:</span>
               <button
-                onClick={() => { setMobile("9820123456"); setPan("BZXPM1234F"); }}
+                onClick={() => { setMobile("9820123456"); }}
                 className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Digitap UAT Verified Number (Ranjodh Singh Dhillon)"
+                title="Digitap UAT: RANJODH SINGH DHILLON"
               >
-                9820123456 (UAT)
+                9820123456
               </button>
               <button
-                onClick={() => { setMobile("9885622862"); setPan("BZXPM1234F"); }}
+                onClick={() => { setMobile("9810012345"); }}
                 className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Live Active SIM"
+                title="Digitap UAT: Lalit Singh Negi"
               >
-                9885622862
+                9810012345
               </button>
               <button
-                onClick={() => { setMobile("9876543210"); setPan("BZXPM1234F"); }}
+                onClick={() => { setMobile("9876543210"); }}
                 className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Demo Number"
+                title="Digitap UAT: MITU DAS"
               >
                 9876543210
               </button>
@@ -354,7 +357,7 @@ export default function DigitapTestPortal() {
             <div className="md:col-span-4 space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                 <span>Mobile Number (India)</span>
-                <span className="text-[11px] text-emerald-400 font-normal">CellX Gateway Target</span>
+                <span className="text-[11px] text-emerald-400 font-normal">CellX SMS Target</span>
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-sm font-semibold">
@@ -364,7 +367,7 @@ export default function DigitapTestPortal() {
                   type="text"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  placeholder="9820123456"
+                  placeholder="Enter 10-digit mobile"
                   className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-12 pr-4 py-2.5 text-white font-mono text-base focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
                 />
               </div>
@@ -373,14 +376,14 @@ export default function DigitapTestPortal() {
             {/* Optional PAN Input */}
             <div className="md:col-span-3 space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-                <span>PAN Number</span>
-                <span className="text-[11px] text-slate-400 font-normal">Optional / Auto</span>
+                <span>Customer PAN Number</span>
+                <span className="text-[11px] text-slate-400 font-normal">Optional</span>
               </label>
               <input
                 type="text"
                 value={pan}
                 onChange={(e) => setPan(e.target.value.toUpperCase().slice(0, 10))}
-                placeholder="BZXPM1234F"
+                placeholder="e.g. ABCDE1234F"
                 className="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-white font-mono text-base uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
               />
             </div>
@@ -488,7 +491,7 @@ export default function DigitapTestPortal() {
               ) : (
                 <>
                   <UserCheck className="w-4 h-4" />
-                  <span>Verify OTP & Fetch Digitap Profile</span>
+                  <span>Verify OTP & Fetch Real Digitap Data</span>
                 </>
               )}
             </button>
@@ -511,54 +514,61 @@ export default function DigitapTestPortal() {
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 {/* Applicant Identity Card */}
                 <div className="flex items-start sm:items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-black text-2xl shadow-xl shadow-emerald-500/20 shrink-0">
-                    {result.identity.subscriberName ? result.identity.subscriberName.charAt(0) : "A"}
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl shrink-0 ${
+                    result.identity.subscriberName
+                      ? "bg-gradient-to-tr from-emerald-500 to-cyan-500 text-slate-950 shadow-emerald-500/20"
+                      : "bg-slate-800 text-slate-400"
+                  }`}>
+                    {result.identity.subscriberName ? result.identity.subscriberName.charAt(0) : "?"}
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                        {result.identity.subscriberName || "Applicant"}
+                        {result.identity.subscriberName || "No Subscriber Name Found"}
                       </h2>
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Digitap KYC Level-3
-                      </span>
+                      {result.identity.subscriberName ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Real Telecom Record
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5" /> 103 Not Found in Sandbox
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-slate-300 font-mono">
                       <span>+91 {result.mobile}</span>
                       <span>•</span>
-                      <span>PAN: {result.pan.panNumber}</span>
+                      <span>PAN: {result.pan.panNumber || "None Provided"}</span>
                       <span>•</span>
-                      <span>Aadhaar: {result.aadhaar.maskedAadhaar}</span>
+                      <span>Aadhaar: {result.aadhaar.maskedAadhaar || "Not Returned"}</span>
                     </div>
-                    <p className="text-[11px] text-slate-400">
-                      Carrier: <strong className="text-slate-200">{result.identity.carrier} ({result.identity.circle})</strong> • SIM: <strong className="text-slate-200">{result.identity.simType}</strong>
-                    </p>
+                    {result.identity.telecomError && (
+                      <p className="text-[11px] text-amber-400/90 font-mono">
+                        Provider Notice: {result.identity.telecomError}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {/* Experian Score Highlight */}
+                {/* Experian Bureau Status Card */}
                 <div className="flex items-center gap-4 bg-slate-950/80 border border-slate-800 rounded-xl p-4 shrink-0">
-                  <div className="relative flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full border-4 border-emerald-500/30 border-t-emerald-400 flex flex-col items-center justify-center">
-                      <span className="text-lg font-black text-white font-mono leading-none">
-                        {result.experian.score}
-                      </span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Score</span>
-                    </div>
-                  </div>
-                  <div>
+                  <div className="space-y-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Experian CIR</span>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300">
-                        {result.experian.scoreBand}
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Experian Bureau CIR</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold ${
+                        result.experian.score ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"
+                      }`}>
+                        {result.experian.status === "FETCHED" ? result.experian.scoreBand : "Pending Activation"}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-300 mt-1">
-                      Active: <strong className="text-emerald-400">{result.experian.activeAccounts} Loans/Cards</strong>
-                    </p>
-                    <p className="text-[11px] text-slate-400">
-                      Delinquency: <strong className="text-slate-200">{result.experian.dpdMax} DPD (Clean)</strong>
-                    </p>
+                    {result.experian.score ? (
+                      <div className="font-mono text-2xl font-black text-emerald-400">{result.experian.score} / 900</div>
+                    ) : (
+                      <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+                        Experian Credit Score API requires product enablement on Client ID {result.queryMeta.clientId}.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -567,11 +577,11 @@ export default function DigitapTestPortal() {
             {/* Navigation Tabs */}
             <div className="flex border-b border-slate-800 gap-2 overflow-x-auto pb-1 text-xs font-bold">
               {[
-                { id: "360", label: "🌟 360° Comprehensive Dossier" },
-                { id: "aadhaar", label: "🆔 Aadhaar Intelligence" },
-                { id: "pan", label: "📑 PAN & 206AB Compliance" },
-                { id: "experian", label: "📊 Experian Bureau & Tradelines" },
+                { id: "360", label: "🌟 360° Real Data Overview" },
                 { id: "telecom", label: "📡 Telecom Reverse Intel" },
+                { id: "pan", label: "📑 PAN & 206AB Compliance" },
+                { id: "aadhaar", label: "🆔 Aadhaar Intelligence" },
+                { id: "experian", label: "📊 Experian Bureau Report" },
                 { id: "raw", label: "💻 Raw Digitap API Envelopes" }
               ].map((t) => (
                 <button
@@ -590,35 +600,37 @@ export default function DigitapTestPortal() {
 
             {/* TAB CONTENT */}
 
-            {/* TAB 1: 360° Comprehensive Dossier */}
+            {/* TAB 1: 360° Real Data Overview */}
             {activeTab === "360" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* 1. Aadhaar Card */}
+                {/* 1. Telecom Card */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" /> Aadhaar KYC
+                      <Smartphone className="w-4 h-4 text-amber-400" /> Telecom Reverse
                     </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
-                      VERIFIED
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      result.identity.subscriberName ? "bg-emerald-500/20 text-emerald-300" : "bg-slate-800 text-slate-400"
+                    }`}>
+                      {result.identity.subscriberName ? "FOUND" : "NOT FOUND"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[11px] text-slate-400">Masked Aadhaar Number</span>
-                    <div className="font-mono text-base font-black text-white">{result.aadhaar.maskedAadhaar}</div>
+                    <span className="text-[11px] text-slate-400">Subscriber Name (Digitap Telecom)</span>
+                    <div className="text-sm font-bold text-white truncate">
+                      {result.identity.subscriberName || "No Linked Name Found"}
+                    </div>
                   </div>
                   <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">UIDAI Seeding:</span>
-                      <span className="text-emerald-400 font-semibold">Active</span>
+                      <span className="text-slate-400">Target Number:</span>
+                      <span className="text-slate-200 font-mono">+91 {result.mobile}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Linked to PAN:</span>
-                      <span className="text-emerald-400 font-semibold">{result.aadhaar.aadhaarLinkedToPan ? "Yes (Sec 139AA)" : "Pending"}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Mobile Match:</span>
-                      <span className="text-emerald-400 font-semibold">100% Match</span>
+                      <span className="text-slate-400">Status:</span>
+                      <span className={result.identity.subscriberName ? "text-emerald-400" : "text-amber-400"}>
+                        {result.identity.telecomStatus}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -629,144 +641,147 @@ export default function DigitapTestPortal() {
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                       <CreditCard className="w-4 h-4 text-cyan-400" /> PAN Card
                     </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300">
-                      OPERATIVE
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      result.pan.panNumber ? "bg-cyan-500/20 text-cyan-300" : "bg-slate-800 text-slate-400"
+                    }`}>
+                      {result.pan.panNumber ? (result.pan.status || "CHECKED") : "NOT PROVIDED"}
                     </span>
                   </div>
                   <div>
                     <span className="text-[11px] text-slate-400">PAN Number</span>
-                    <div className="font-mono text-base font-black text-white">{result.pan.panNumber}</div>
+                    <div className="font-mono text-base font-black text-white">
+                      {result.pan.panNumber || "None Provided"}
+                    </div>
                   </div>
                   <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Holder Name:</span>
-                      <span className="text-slate-200 font-semibold truncate max-w-[130px]">{result.pan.holderName}</span>
+                      <span className="text-slate-200 font-semibold truncate max-w-[130px]">
+                        {result.pan.holderName || "—"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Category:</span>
-                      <span className="text-slate-200 font-semibold">{result.pan.category}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Sec 206AB:</span>
-                      <span className="text-emerald-400 font-semibold">Compliant</span>
+                      <span className="text-slate-400">CBDT Status:</span>
+                      <span className="text-slate-200">{result.pan.status || "—"}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 3. Experian Credit Bureau */}
+                {/* 3. Aadhaar Card */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-purple-400" /> Experian CIR
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" /> Aadhaar Masked
                     </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300">
-                      {result.experian.scoreBand}
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      result.aadhaar.maskedAadhaar ? "bg-emerald-500/20 text-emerald-300" : "bg-slate-800 text-slate-400"
+                    }`}>
+                      {result.aadhaar.maskedAadhaar ? "FOUND" : "NOT RETURNED"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[11px] text-slate-400">Bureau Score</span>
+                    <span className="text-[11px] text-slate-400">Masked Aadhaar Number</span>
                     <div className="font-mono text-base font-black text-white">
-                      {result.experian.score} <span className="text-xs text-slate-500 font-normal">/ 900</span>
+                      {result.aadhaar.maskedAadhaar || "Not Returned"}
                     </div>
                   </div>
                   <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Total Outstanding:</span>
-                      <span className="text-slate-200 font-semibold">₹{result.experian.totalOutstanding.toLocaleString("en-IN")}</span>
+                      <span className="text-slate-400">Linked to PAN:</span>
+                      <span className="text-slate-200">
+                        {result.aadhaar.aadhaarLinkedToPan === null ? "—" : result.aadhaar.aadhaarLinkedToPan ? "Yes" : "No"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Utilization:</span>
-                      <span className="text-emerald-400 font-semibold">{result.experian.creditUtilization}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Repayment Track:</span>
-                      <span className="text-emerald-400 font-semibold">100% On-Time</span>
+                      <span className="text-slate-400">Source:</span>
+                      <span className="text-slate-200 text-[11px]">Digitap KYC</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 4. Telecom Intel */}
+                {/* 4. Experian Bureau Card */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                      <Smartphone className="w-4 h-4 text-amber-400" /> Telecom Match
+                      <Sparkles className="w-4 h-4 text-purple-400" /> Experian Bureau
                     </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300">
-                      ACTIVE SIM
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      result.experian.score ? "bg-purple-500/20 text-purple-300" : "bg-slate-800 text-slate-400"
+                    }`}>
+                      {result.experian.score ? "SCORE FOUND" : "PENDING ACTIVATION"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[11px] text-slate-400">Carrier / Circle</span>
-                    <div className="text-sm font-bold text-white truncate">{result.identity.carrier}</div>
-                    <div className="text-xs text-slate-400 truncate">{result.identity.circle}</div>
+                    <span className="text-[11px] text-slate-400">Experian Credit Score</span>
+                    <div className="font-mono text-base font-black text-white">
+                      {result.experian.score !== null ? `${result.experian.score} / 900` : "Not Enabled"}
+                    </div>
                   </div>
                   <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">SIM Type:</span>
-                      <span className="text-slate-200 font-semibold">{result.identity.simType}</span>
-                    </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Status:</span>
-                      <span className="text-emerald-400 font-semibold">Active Handset</span>
+                      <span className="text-amber-400 font-mono text-[11px]">{result.experian.status}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Reverse Name:</span>
-                      <span className="text-slate-200 font-semibold truncate max-w-[120px]">{result.identity.subscriberName}</span>
-                    </div>
+                    <p className="text-[10px] text-slate-400 line-clamp-2">
+                      {result.experian.message || "Contact Digitap RM for Bureau Suite enablement."}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB 2: Aadhaar Intelligence */}
-            {activeTab === "aadhaar" && (
+            {/* TAB 2: Telecom Reverse Intel */}
+            {activeTab === "telecom" && (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                      <span>UIDAI Aadhaar Intelligence & Linkage</span>
+                      <Smartphone className="w-5 h-5 text-amber-400" />
+                      <span>Telecom Reverse Lookup & Subscriber Details</span>
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Per RBI KYC guidelines and Aadhaar Act, raw 12-digit Aadhaar numbers are never exposed; only provider-masked identifiers are handled.
+                      Directly queried from Digitap Mobile Name Lookup (/validation/misc/v1/mobile-name-lookup).
                     </p>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    Digitap KYC Endpoint /pan_to_masked_aadhaar
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    POST /validation/misc/v1/mobile-name-lookup
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">Masked Aadhaar Number</span>
-                    <div className="font-mono text-xl font-black text-emerald-400">{result.aadhaar.maskedAadhaar}</div>
-                    <p className="text-[11px] text-slate-500">Digitap cryptographically masked UIDAI identifier</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <span className="text-xs text-slate-400">Subscriber Name (as per Telecom Registry)</span>
+                    <div className="text-xl font-bold text-white">
+                      {result.identity.subscriberName || (
+                        <span className="text-amber-400 text-sm font-normal">
+                          No linked name returned by Digitap for +91 {result.mobile} (Result Code: 103)
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">PAN-Aadhaar Seeding Status</span>
-                    <div className="text-base font-bold text-white flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>{result.aadhaar.aadhaarLinkedToPan ? "Linked (CBDT Section 139AA Compliant)" : "Not Linked"}</span>
-                    </div>
-                    <p className="text-[11px] text-slate-500">Verified against ITD database via Digitap</p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">UIDAI / NPCI Seeding</span>
-                    <div className="text-base font-bold text-white flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>{result.aadhaar.uidaiSeedingStatus}</span>
-                    </div>
-                    <p className="text-[11px] text-slate-500">Aadhaar payment bridge eligible for direct benefit transfers</p>
+                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <span className="text-xs text-slate-400">Mobile Target</span>
+                    <div className="text-xl font-bold text-emerald-400 font-mono">+91 {result.mobile}</div>
+                    <span className="text-xs text-slate-400">Status: {result.identity.simStatus}</span>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-300 space-y-1">
-                  <div className="font-bold text-slate-200">Legal & Security Audit Footprint:</div>
-                  <p>
-                    All Aadhaar checks executed via Digitap's compliant KYC Validation Suite (v4.91).
-                    No Aadhaar data is stored unmasked. Verification reference: <span className="font-mono text-emerald-400">{result.identity.mobileNumber}-DT-UIDAI</span>.
+                <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 space-y-2">
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <Info className="w-4 h-4 text-cyan-400" />
+                    <span>How Digitap UAT Telecom Matching Works:</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    In Digitap's UAT demo environment (<code className="text-cyan-300">svcdemo.digitap.work</code>), only pre-seeded test records exist in the carrier database:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 font-mono text-[11px] text-slate-300 pl-2">
+                    <li><strong className="text-white">9820123456</strong> &rarr; Resolved Name: <span className="text-emerald-400">"RANJODH SINGH DHILLON"</span></li>
+                    <li><strong className="text-white">9810012345</strong> &rarr; Resolved Name: <span className="text-emerald-400">"Lalit Singh Negi"</span></li>
+                    <li><strong className="text-white">9876543210</strong> &rarr; Resolved Name: <span className="text-emerald-400">"MITU DAS"</span></li>
+                  </ul>
+                  <p className="text-[11px] text-slate-400">
+                    Live unseeded personal phone numbers in UAT return <code className="text-amber-400">103: No linked name found</code> because real telecom carrier queries only run in Production.
                   </p>
                 </div>
               </div>
@@ -779,225 +794,137 @@ export default function DigitapTestPortal() {
                   <div>
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                       <CreditCard className="w-5 h-5 text-cyan-400" />
-                      <span>CBDT Income Tax PAN Profile & Compliance</span>
+                      <span>Income Tax PAN Validation (Digitap / CBDT)</span>
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Real-time PAN details from Digitap KYC suite (/validation/kyc/v1/pan_details).
+                      Real-time PAN authentication using Digitap KYC Suite (/validation/kyc/v1/pan_details).
                     </p>
                   </div>
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    Digitap KYC Endpoint /pan_details
+                    POST /validation/kyc/v1/pan_details
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">PAN Number</span>
-                    <div className="font-mono text-xl font-black text-cyan-400">{result.pan.panNumber}</div>
-                    <span className="text-[11px] text-slate-500">Masked: {result.pan.maskedPan}</span>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">Legal Name as per ITD</span>
-                    <div className="text-base font-bold text-white">{result.pan.holderName}</div>
-                    <span className="text-[11px] text-slate-500">Category: {result.pan.category}</span>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">ITD Operative Status</span>
-                    <div className="text-base font-bold text-emerald-400 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{result.pan.status}</span>
+                {result.pan.panNumber ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                      <span className="text-xs text-slate-400">PAN Number</span>
+                      <div className="font-mono text-xl font-black text-cyan-400">{result.pan.panNumber}</div>
+                      <span className="text-[11px] text-slate-500">Masked: {result.pan.maskedPan}</span>
                     </div>
-                    <span className="text-[11px] text-slate-500">CBDT Pan Allotment Verified</span>
-                  </div>
 
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">Section 206AB Compliance</span>
-                    <div className="text-base font-bold text-emerald-400 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{result.pan.section206abCompliance}</span>
+                    <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                      <span className="text-xs text-slate-400">Holder Name as per ITD</span>
+                      <div className="text-base font-bold text-white">{result.pan.holderName || "Not Returned"}</div>
+                      <span className="text-[11px] text-slate-500">Category: {result.pan.category || "—"}</span>
                     </div>
-                    <span className="text-[11px] text-slate-500">Not subject to penal higher TDS/TCS deduction</span>
-                  </div>
 
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">PAN-Aadhaar Link Status</span>
-                    <div className="text-base font-bold text-emerald-400 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{result.pan.aadhaarLinked ? "Operative (Linked)" : "Inoperative"}</span>
+                    <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                      <span className="text-xs text-slate-400">CBDT Status</span>
+                      <div className="text-base font-bold text-slate-200">{result.pan.status || "—"}</div>
+                      {result.pan.error && (
+                        <span className="text-[11px] text-amber-400">{result.pan.error}</span>
+                      )}
                     </div>
-                    <span className="text-[11px] text-slate-500">Compliant with Section 139AA</span>
+                  </div>
+                ) : (
+                  <div className="p-6 rounded-xl bg-slate-950 border border-slate-800 text-center space-y-2">
+                    <p className="text-slate-400 text-sm">
+                      No PAN was provided for this query.
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Enter a PAN number in the input box above and click "Instant Fetch" to trigger live PAN authentication against the Income Tax Department.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 4: Aadhaar Intelligence */}
+            {activeTab === "aadhaar" && (
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                      <span>UIDAI Aadhaar Intelligence & Linkage</span>
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Queried via Digitap KYC Validation Suite.
+                    </p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    POST /validation/kyc/v1/pan_to_masked_aadhaar
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                    <span className="text-xs text-slate-400">Masked Aadhaar Number</span>
+                    <div className="font-mono text-xl font-black text-emerald-400">
+                      {result.aadhaar.maskedAadhaar || "None Returned"}
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      {result.aadhaar.maskedAadhaar ? "Digitap masked UIDAI identifier" : "No Aadhaar returned for this record"}
+                    </p>
                   </div>
 
                   <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                    <span className="text-xs text-slate-400">Data Source</span>
-                    <div className="text-base font-bold text-slate-200">{result.pan.source}</div>
-                    <span className="text-[11px] text-slate-500">Authenticated via Digitap API</span>
+                    <span className="text-xs text-slate-400">PAN-Aadhaar Linkage Status</span>
+                    <div className="text-base font-bold text-white">
+                      {result.aadhaar.aadhaarLinkedToPan === null ? "Unknown / Not Provided" : result.aadhaar.aadhaarLinkedToPan ? "Linked (Compliant)" : "Not Linked"}
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB 4: Experian Credit Bureau & Tradelines */}
+            {/* TAB 5: Experian Bureau Report */}
             {activeTab === "experian" && (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <div>
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-purple-400" />
-                      <span>Experian Credit Bureau Report (CIR)</span>
+                      <span>Experian Credit Bureau Status & Intelligence</span>
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Credit rating and comprehensive repayment telemetry pulled for +91 {result.mobile}.
+                      Live bureau integration status for +91 {result.mobile}.
                     </p>
                   </div>
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                    Experian Credit Score: {result.experian.score}
+                    Experian Bureau
                   </span>
                 </div>
 
-                {/* Score Key Indicators */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-[11px] text-slate-400">Credit Score</span>
-                    <div className="font-mono text-xl font-black text-emerald-400">{result.experian.score}</div>
-                    <span className="text-[10px] text-slate-500">Range: 300 - 900</span>
+                {result.experian.score !== null ? (
+                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <div className="font-mono text-2xl font-black text-emerald-400">{result.experian.score} / 900</div>
+                    <span className="text-xs text-purple-300">{result.experian.scoreBand}</span>
                   </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-[11px] text-slate-400">Rating Band</span>
-                    <div className="text-sm font-bold text-purple-300">{result.experian.scoreBand}</div>
-                    <span className="text-[10px] text-slate-500">Prime Segment</span>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-[11px] text-slate-400">Total Outstanding</span>
-                    <div className="font-mono text-sm font-bold text-white">
-                      ₹{result.experian.totalOutstanding.toLocaleString("en-IN")}
+                ) : (
+                  <div className="p-5 rounded-xl bg-slate-950 border border-amber-500/30 space-y-3">
+                    <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                      <AlertTriangle className="w-5 h-5" />
+                      <span>Bureau Service Status: {result.experian.status}</span>
                     </div>
-                    <span className="text-[10px] text-slate-500">Across all banks</span>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-[11px] text-slate-400">Credit Utilization</span>
-                    <div className="font-mono text-sm font-bold text-emerald-400">
-                      {result.experian.creditUtilization}%
-                    </div>
-                    <span className="text-[10px] text-slate-500">Safe threshold (&lt;30%)</span>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-[11px] text-slate-400">Delinquency</span>
-                    <div className="font-mono text-sm font-bold text-emerald-400">
-                      {result.experian.dpdMax} DPD
-                    </div>
-                    <span className="text-[10px] text-slate-500">Zero default record</span>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-[11px] text-slate-400">6M Inquiries</span>
-                    <div className="font-mono text-sm font-bold text-white">
-                      {result.experian.enquiries6m}
-                    </div>
-                    <span className="text-[10px] text-slate-500">Low bureau search</span>
-                  </div>
-                </div>
-
-                {/* Tradeline Accounts Table */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold text-slate-200">Bureau Tradeline Accounts</h4>
-                    <span className="text-xs text-slate-400">{result.experian.tradelines.length} Accounts Found</span>
-                  </div>
-
-                  <div className="overflow-x-auto border border-slate-800 rounded-xl">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
-                        <tr>
-                          <th className="p-3">Lender / Institution</th>
-                          <th className="p-3">Facility Type</th>
-                          <th className="p-3 font-mono">Account No.</th>
-                          <th className="p-3 text-right">Sanctioned Limit</th>
-                          <th className="p-3 text-right">Current Balance</th>
-                          <th className="p-3 text-center">DPD Track</th>
-                          <th className="p-3 text-center">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800/60 font-mono">
-                        {result.experian.tradelines.map((tl, i) => (
-                          <tr key={i} className="hover:bg-slate-800/40 transition-colors font-sans">
-                            <td className="p-3 font-semibold text-white">{tl.lender}</td>
-                            <td className="p-3 text-slate-300">{tl.accountType}</td>
-                            <td className="p-3 font-mono text-slate-400">{tl.accountNumber}</td>
-                            <td className="p-3 text-right font-mono text-slate-200">
-                              ₹{tl.sanctionedAmount.toLocaleString("en-IN")}
-                            </td>
-                            <td className="p-3 text-right font-mono text-slate-200">
-                              ₹{tl.currentBalance.toLocaleString("en-IN")}
-                            </td>
-                            <td className="p-3 text-center font-mono">
-                              <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold">
-                                {tl.dpd} DPD
-                              </span>
-                            </td>
-                            <td className="p-3 text-center">
-                              <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                  tl.status === "Active"
-                                    ? "bg-emerald-500/20 text-emerald-300"
-                                    : "bg-slate-800 text-slate-400"
-                                }`}
-                              >
-                                {tl.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 5: Telecom Reverse Intel */}
-            {activeTab === "telecom" && (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <Smartphone className="w-5 h-5 text-amber-400" />
-                      <span>Telecom Reverse Lookup & Carrier Intelligence</span>
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      Directly queried from Digitap Mobile Name Lookup (/validation/misc/v1/mobile-name-lookup).
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      {result.experian.message || "Experian Credit Bureau API requires product entitlement on this Digitap Client ID."}
                     </p>
+                    <div className="p-3 rounded-lg bg-slate-900 text-xs text-slate-400 space-y-1">
+                      <strong className="text-slate-200">How to activate Experian live pulls:</strong>
+                      <p>
+                        1. Digitap separates the <strong>KYC Validation Suite</strong> (which is active on your Client ID {result.queryMeta.clientId}) from the <strong>Credit Bureau Suite (Experian/CIBIL)</strong>.
+                      </p>
+                      <p>
+                        2. Contact your Digitap Relationship Manager (RM) or email <code className="text-cyan-400">support@digitap.ai</code> to activate the Experian CIR product contract for Client ID <code className="text-cyan-400">{result.queryMeta.clientId}</code>.
+                      </p>
+                      <p>
+                        3. For Production (<code className="text-cyan-400">01338635</code>), request IP whitelisting for your server's egress IP to remove the HTTP 403 restriction.
+                      </p>
+                    </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    Live Carrier Ping
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                    <span className="text-xs text-slate-400">Subscriber Registered Legal Name</span>
-                    <div className="text-xl font-bold text-white">{result.identity.subscriberName}</div>
-                    <p className="text-[11px] text-slate-500">Extracted directly from telecom carrier registry via Digitap</p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                    <span className="text-xs text-slate-400">Telecom Carrier & Circle</span>
-                    <div className="text-xl font-bold text-amber-400">{result.identity.carrier}</div>
-                    <p className="text-xs text-slate-300">{result.identity.circle} ({result.identity.simType})</p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 md:col-span-2">
-                    <span className="text-xs text-slate-400">Registered Billing Address (Telecom Records)</span>
-                    <div className="text-sm font-semibold text-slate-200">{result.identity.registeredAddress}</div>
-                    <p className="text-[11px] text-slate-500">Address linked to the active telecom connection</p>
-                  </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -1008,7 +935,7 @@ export default function DigitapTestPortal() {
                   <div>
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
                       <Database className="w-4 h-4 text-emerald-400" />
-                      <span>Raw Provider Envelopes (Digitap & CellX)</span>
+                      <span>Raw Provider Envelopes (Direct from Digitap & CellX)</span>
                     </h3>
                     <p className="text-xs text-slate-400">
                       Exact payload structures returned by Digitap's endpoints for audit & compliance logging.
@@ -1029,7 +956,7 @@ export default function DigitapTestPortal() {
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-mono text-emerald-400 font-bold uppercase">{key}</span>
                         <span className="text-slate-500 font-mono">
-                          HTTP {val?.http_response_code || 200}
+                          HTTP {val?.http_response_code || val?.httpStatus || 200}
                         </span>
                       </div>
                       <pre className="bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-slate-300 overflow-x-auto border border-slate-800 max-h-64 leading-relaxed">
@@ -1047,7 +974,7 @@ export default function DigitapTestPortal() {
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-slate-900/60 py-4 px-6 text-center text-xs text-slate-500">
         <p>
-          SNIPER FinTech Operating System • CellX SMSGW + Digitap API Suite v4.91 • Experian CIR Integration
+          SNIPER FinTech Operating System • CellX SMSGW + Digitap API Suite v4.91
         </p>
       </footer>
     </div>

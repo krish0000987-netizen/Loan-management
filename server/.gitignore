@@ -4,3 +4,4 @@
 .env.production
 .env.*.local
 !.env.example
+.env*

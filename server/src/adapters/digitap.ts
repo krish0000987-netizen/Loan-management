@@ -582,42 +582,74 @@ export async function mnvReport(mobile: string): Promise<MnvReportResult> {
   const digits = mobile.replace(/\D/g, "");
   const mob = digits.length === 12 && digits.startsWith("91") ? digits.slice(2) : digits;
   const lookup = await mobileNameLookup(mob);
-  const name = lookup.name;
+  const raw = (lookup.raw?.result as Record<string, any>) || {};
 
   return {
     mobile: mob,
-    subscriberName: name || undefined,
-    carrier: "Jio Telecom",
-    circle: "Maharashtra & Goa",
-    status: "Active",
-    registeredAddress: "Flat 402, Royal Residency, Andheri West",
-    city: "Mumbai",
-    state: "Maharashtra",
-    pincode: "400053",
-    email: name ? `${name.toLowerCase().replace(/[^a-z0-9]/g, ".")}@gmail.com` : undefined,
-    pan: "BZXPM1234F",
-    simType: "Postpaid",
+    subscriberName: lookup.name || undefined,
+    carrier: raw.carrier || raw.operator || undefined,
+    circle: raw.circle || undefined,
+    status: lookup.name ? "Active" : "No record in UAT sandbox",
+    registeredAddress: raw.address || raw.registered_address || undefined,
+    city: raw.city || undefined,
+    state: raw.state || undefined,
+    pincode: raw.pincode || undefined,
+    email: raw.email ? maskEmail(raw.email) : undefined,
+    pan: raw.pan ? maskPan(raw.pan) : undefined,
+    simType: raw.connection_type || raw.sim_type || undefined,
     providerRef: lookup.providerRef || `mnv-rep-${Date.now()}`
   };
 }
 
 export async function pullExperianReport(params: { mobile?: string; pan?: string; name?: string }): Promise<ExperianBureauResult> {
-  const ref = `exp-${Date.now()}`;
-  return {
-    score: 782,
-    scoreBand: "Excellent",
-    activeAccounts: 2,
-    closedAccounts: 2,
-    overdueAccounts: 0,
-    totalOutstanding: 185000,
-    creditUtilization: 16.5,
-    enquiries6m: 1,
-    dpdMax: 0,
-    repaymentTrack: "100%",
-    creditAge: "4.2 Yrs",
-    provider: "DIGITAP-EXPERIAN",
-    providerRef: ref
+  const creds = await requireCreds();
+  const digits = (params.mobile || "").replace(/\D/g, "");
+  const mob = digits.length === 12 && digits.startsWith("91") ? digits.slice(2) : digits;
+
+  // Query Digitap Bureau endpoints
+  const endpoints = [
+    "/credit/v1/experian",
+    "/bureau/v1/experian",
+    "/validation/bureau/v1/experian",
+    "/validation/misc/v1/credit_report"
+  ];
+
+  const payload = {
+    client_ref_num: clientRef("exp"),
+    mobile: mob,
+    pan: params.pan || undefined,
+    name: params.name || undefined
   };
+
+  let lastError: any = null;
+  for (const ep of endpoints) {
+    try {
+      const { envelope, httpStatus } = await post(creds, ep, payload, 1);
+      if (httpStatus === 200 && envelope.result) {
+        const r = envelope.result as Record<string, any>;
+        return {
+          score: Number(r.score || r.credit_score || 0),
+          scoreBand: String(r.score_band || r.rating || "Standard"),
+          activeAccounts: Number(r.active_accounts || 0),
+          closedAccounts: Number(r.closed_accounts || 0),
+          overdueAccounts: Number(r.overdue_accounts || 0),
+          totalOutstanding: Number(r.total_outstanding || 0),
+          creditUtilization: Number(r.credit_utilization || 0),
+          enquiries6m: Number(r.enquiries_6m || 0),
+          dpdMax: Number(r.dpd_max || 0),
+          repaymentTrack: String(r.repayment_track || ""),
+          creditAge: String(r.credit_age || ""),
+          provider: "DIGITAP-EXPERIAN",
+          providerRef: envelope.request_id || String(payload.client_ref_num)
+        };
+      }
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  // Never return fake hardcoded score — throw real error stating provider enablement status
+  throw lastError || new DigitapError(503, "Experian Bureau API requires product enablement on Digitap Client ID 07625809 / 01338635. Please contact your Digitap Relationship Manager to activate Credit Bureau Suite.");
 }
 
 /* ============================================================

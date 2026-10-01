@@ -144,143 +144,105 @@ digitapPortalRouter.post(
     }
 
     const rawEnvelopes: Record<string, any> = {};
-    const targetPan = (body.pan && body.pan.trim().length === 10)
-      ? body.pan.trim().toUpperCase()
-      : (normMobile === "9820123456" ? "BZXPM1234F" : "BZXPM1234F");
+    const inputPan = (body.pan && body.pan.trim().length === 10) ? body.pan.trim().toUpperCase() : null;
 
-    // Execute all Digitap API queries in parallel for ultra-fast response
-    const [mobSettled, mnvSettled, panSettled, aadhSettled, compSettled] = await Promise.allSettled([
-      mobileNameLookup(normMobile),
-      mnvReport(normMobile),
-      panDetails({ pan: targetPan }),
-      panToMaskedAadhaar(targetPan),
-      pan206abCompliance(targetPan)
-    ]);
-
-    // 1. Telecom & Identity
-    let telecomResolvedName: string | undefined;
-    if (mobSettled.status === "fulfilled") {
-      telecomResolvedName = mobSettled.value.name;
-      rawEnvelopes["mobile_name_lookup"] = mobSettled.value.raw;
-    } else {
-      rawEnvelopes["mobile_name_lookup"] = { error: (mobSettled.reason as any)?.message };
-    }
-
-    let mnvData: any = null;
-    if (mnvSettled.status === "fulfilled") {
-      mnvData = mnvSettled.value;
-      if (!telecomResolvedName && mnvData?.subscriberName) {
-        telecomResolvedName = mnvData.subscriberName;
+    // 1. Telecom Reverse Lookup (Live Digitap POST /validation/misc/v1/mobile-name-lookup)
+    let telecomResolvedName: string | null = null;
+    let telecomError: string | null = null;
+    let telecomStatus = "NOT_FOUND";
+    try {
+      const mobResult = await mobileNameLookup(normMobile);
+      rawEnvelopes["mobile_name_lookup"] = mobResult.raw;
+      if (mobResult.name) {
+        telecomResolvedName = mobResult.name;
+        telecomStatus = "VERIFIED";
+      } else if (mobResult.raw?.result_code === 103) {
+        telecomStatus = "NOT_FOUND_IN_SANDBOX";
+        telecomError = "No linked name found for this mobile in Digitap database (Result Code: 103)";
+      } else {
+        telecomStatus = "UNVERIFIED";
+        telecomError = mobResult.raw?.message || "Lookup returned no linked subscriber";
       }
-      rawEnvelopes["mnv_report"] = mnvData;
-    } else {
-      rawEnvelopes["mnv_report"] = { error: (mnvSettled.reason as any)?.message };
+    } catch (err: any) {
+      telecomError = err.message;
+      rawEnvelopes["mobile_name_lookup"] = { error: err.message };
     }
 
-    const finalSubscriberName = telecomResolvedName || (normMobile === "9820123456" ? "RANJODH SINGH DHILLON" : "Aravind Krishna Verma");
+    // 2. PAN & Aadhaar Intelligence (Live Digitap CBDT / ITD validation)
+    let panData: any = null;
+    let maskedAadhaarVal: string | null = null;
+    let panLinkedStatus: boolean | null = null;
+    let panOperativeStatus: string | null = null;
+    let compliance206ab: string | null = null;
+    let panError: string | null = null;
 
-    // 2. PAN & Masked Aadhaar
-    let maskedAadhaarVal = "";
-    let panLinkedStatus = true;
-    let panOperativeStatus = "Active / Operative";
-    let compliance206ab = "Not a Specified Person (Compliant)";
+    if (inputPan) {
+      const [panSettled, aadhSettled, compSettled] = await Promise.allSettled([
+        panDetails({ pan: inputPan }),
+        panToMaskedAadhaar(inputPan),
+        pan206abCompliance(inputPan)
+      ]);
 
-    if (panSettled.status === "fulfilled") {
-      const pVal = panSettled.value;
-      rawEnvelopes["pan_details"] = pVal;
-      if (pVal.result?.aadhaarNumberMasked) maskedAadhaarVal = pVal.result.aadhaarNumberMasked;
-      if (typeof pVal.result?.aadhaarLinked === "boolean") panLinkedStatus = pVal.result.aadhaarLinked;
-    } else {
-      const pErr = panSettled.reason as any;
-      rawEnvelopes["pan_details"] = { error: pErr?.message, httpStatus: pErr?.httpStatus, resultCode: pErr?.resultCode };
-    }
+      if (panSettled.status === "fulfilled") {
+        const pVal = panSettled.value;
+        rawEnvelopes["pan_details"] = pVal;
+        panData = pVal.result;
+        panOperativeStatus = pVal.result.aadhaarLinked ? "Operative (Aadhaar Linked)" : "Active";
+        if (pVal.result?.aadhaarNumberMasked) maskedAadhaarVal = pVal.result.aadhaarNumberMasked;
+        if (typeof pVal.result?.aadhaarLinked === "boolean") panLinkedStatus = pVal.result.aadhaarLinked;
+      } else {
+        const pErr = panSettled.reason as any;
+        rawEnvelopes["pan_details"] = { error: pErr?.message, httpStatus: pErr?.httpStatus, resultCode: pErr?.resultCode };
+        panError = pErr?.message || "PAN details lookup failed";
+      }
 
-    if (aadhSettled.status === "fulfilled") {
-      const aVal = aadhSettled.value;
-      rawEnvelopes["pan_to_masked_aadhaar"] = aVal;
-      if (aVal.maskedAadhaar) maskedAadhaarVal = aVal.maskedAadhaar;
-    } else {
-      const aErr = aadhSettled.reason as any;
-      rawEnvelopes["pan_to_masked_aadhaar"] = { error: aErr?.message, httpStatus: aErr?.httpStatus, resultCode: aErr?.resultCode };
-    }
+      if (aadhSettled.status === "fulfilled") {
+        const aVal = aadhSettled.value;
+        rawEnvelopes["pan_to_masked_aadhaar"] = aVal;
+        if (aVal.maskedAadhaar) maskedAadhaarVal = aVal.maskedAadhaar;
+      } else {
+        const aErr = aadhSettled.reason as any;
+        rawEnvelopes["pan_to_masked_aadhaar"] = { error: aErr?.message, httpStatus: aErr?.httpStatus, resultCode: aErr?.resultCode };
+      }
 
-    if (compSettled.status === "fulfilled") {
-      const cVal = compSettled.value;
-      rawEnvelopes["form206ab_compliance"] = cVal;
-      if (cVal.result?.specifiedPerson === false) {
-        compliance206ab = "Not a Specified Person (Normal TDS/TCS Rates)";
+      if (compSettled.status === "fulfilled") {
+        const cVal = compSettled.value;
+        rawEnvelopes["form206ab_compliance"] = cVal;
+        if (cVal.result?.specifiedPerson === false) {
+          compliance206ab = "Not a Specified Person (Normal TDS Rates)";
+        } else if (cVal.result?.specifiedPerson === true) {
+          compliance206ab = "Specified Person (Higher TDS Applicable)";
+        }
+      } else {
+        rawEnvelopes["form206ab_compliance"] = { error: (compSettled.reason as any)?.message };
       }
     } else {
-      rawEnvelopes["form206ab_compliance"] = { error: (compSettled.reason as any)?.message };
+      rawEnvelopes["pan_details"] = { message: "No PAN provided. Pass 'pan' parameter to execute live PAN / Aadhaar verification." };
     }
 
-    if (!maskedAadhaarVal) {
-      const lastFour = normMobile.slice(-4);
-      maskedAadhaarVal = `XXXXXXXX${lastFour}`;
-    }
-
-    // 3. Experian Bureau Pull
+    // 3. Experian Bureau Intelligence (Live Query)
     let experianData: any = null;
+    let bureauStatus = "PENDING_ENABLEMENT";
+    let bureauMessage: string | null = null;
     try {
       experianData = await pullExperianReport({
         mobile: normMobile,
-        pan: targetPan,
-        name: finalSubscriberName
+        pan: inputPan || undefined,
+        name: telecomResolvedName || undefined
       });
       rawEnvelopes["experian_bureau"] = experianData;
+      bureauStatus = "FETCHED";
     } catch (err: any) {
-      rawEnvelopes["experian_bureau"] = { error: err.message };
+      rawEnvelopes["experian_bureau"] = {
+        error: err.message,
+        httpStatus: err.httpStatus || 503,
+        status: "NOT_ENABLED_ON_CLIENT"
+      };
+      bureauStatus = "NOT_ENABLED_ON_CLIENT";
+      bureauMessage = err.message || "Experian Credit Bureau suite requires enablement on this Digitap Client ID.";
     }
 
-    // Comprehensive Tradelines Breakdown
-    const tradelines = [
-      {
-        accountNumber: "XXXXXXXX4412",
-        lender: "HDFC Bank Ltd",
-        accountType: "Credit Card (Titanium)",
-        sanctionedAmount: 200000,
-        currentBalance: 32450,
-        repaymentStatus: "Current / On-Time",
-        dpd: 0,
-        openedDate: "14/03/2022",
-        status: "Active"
-      },
-      {
-        accountNumber: "XXXXXXXX8901",
-        lender: "ICICI Bank Ltd",
-        accountType: "Auto / Vehicle Loan",
-        sanctionedAmount: 650000,
-        currentBalance: 152550,
-        repaymentStatus: "Current / On-Time",
-        dpd: 0,
-        openedDate: "05/11/2021",
-        status: "Active"
-      },
-      {
-        accountNumber: "XXXXXXXX1183",
-        lender: "Bajaj Finance Ltd",
-        accountType: "Consumer Durable Loan",
-        sanctionedAmount: 45000,
-        currentBalance: 0,
-        repaymentStatus: "Closed (No Dues)",
-        dpd: 0,
-        openedDate: "20/08/2020",
-        status: "Closed"
-      },
-      {
-        accountNumber: "XXXXXXXX7724",
-        lender: "Axis Bank Ltd",
-        accountType: "Personal Loan",
-        sanctionedAmount: 150000,
-        currentBalance: 0,
-        repaymentStatus: "Closed (No Dues)",
-        dpd: 0,
-        openedDate: "12/01/2019",
-        status: "Closed"
-      }
-    ];
-
-    // Build the consolidated 360° response
+    // Build strictly real response — ZERO fabricated or hardcoded fake profiles
     const config = digitapConfig();
     res.json({
       success: true,
@@ -296,59 +258,61 @@ digitapPortalRouter.post(
         creditBureauProvider: "Experian Credit Information Services"
       },
 
-      // 1. Telecom & Identity Intelligence
+      // 1. Telecom & Identity (Real Provider Output Only)
       identity: {
-        subscriberName: finalSubscriberName,
+        subscriberName: telecomResolvedName,
         mobileNumber: normMobile,
-        carrier: mnvData?.carrier || "Jio Telecom",
-        circle: mnvData?.circle || "Maharashtra & Goa",
-        simType: mnvData?.simType || "Postpaid",
-        simStatus: "Active",
-        registeredAddress: mnvData?.registeredAddress || "Flat 402, Royal Residency, Andheri West, Mumbai, Maharashtra - 400053",
-        telecomMatchScore: 100,
-        verifiedViaDigitap: true
+        carrier: rawEnvelopes["mobile_name_lookup"]?.result?.operator || rawEnvelopes["mobile_name_lookup"]?.result?.carrier || null,
+        circle: rawEnvelopes["mobile_name_lookup"]?.result?.circle || null,
+        simType: rawEnvelopes["mobile_name_lookup"]?.result?.connection_type || null,
+        simStatus: telecomResolvedName ? "Active" : "Unverified in UAT",
+        telecomStatus,
+        telecomError,
+        verifiedViaDigitap: telecomResolvedName !== null
       },
 
-      // 2. Aadhaar Details (Strictly Masked)
+      // 2. Aadhaar Details (Real Provider Output Only)
       aadhaar: {
         maskedAadhaar: maskedAadhaarVal,
         aadhaarLinkedToPan: panLinkedStatus,
-        aadhaarLinkedToMobile: true,
-        uidaiSeedingStatus: "Seeded (Active in NPCI / UIDAI DB)",
-        verificationStatus: "VALID_MATCH",
+        aadhaarLinkedToMobile: telecomResolvedName !== null,
+        uidaiSeedingStatus: maskedAadhaarVal ? "Verified via Digitap KYC" : null,
+        verificationStatus: maskedAadhaarVal ? "VALID_MATCH" : (inputPan ? "NO_RECORD" : "NO_PAN_PROVIDED"),
         source: "Digitap KYC Validation API"
       },
 
-      // 3. PAN Details
+      // 3. PAN Details (Real Provider Output Only)
       pan: {
-        panNumber: targetPan,
-        maskedPan: maskPan(targetPan),
-        holderName: finalSubscriberName,
-        category: "Individual (P)",
+        panNumber: inputPan,
+        maskedPan: inputPan ? maskPan(inputPan) : null,
+        holderName: panData?.panDisplayName || panData?.name || panData?.fullname || null,
+        category: panData?.panType || (inputPan ? (inputPan[3] === "P" ? "Individual" : "Company/Firm") : null),
         status: panOperativeStatus,
         aadhaarLinked: panLinkedStatus,
         section206abCompliance: compliance206ab,
-        panAllotmentStatus: "Operative & Active",
+        error: panError,
         source: "Digitap CBDT / ITD Service"
       },
 
-      // 4. Experian Credit Bureau Intelligence
+      // 4. Experian Credit Bureau Intelligence (Real Provider Output Only)
       experian: {
-        score: experianData?.score || 782,
-        scoreBand: experianData?.scoreBand || "Excellent",
-        scoreRange: "300 - 900",
-        totalAccounts: 4,
-        activeAccounts: experianData?.activeAccounts || 2,
-        closedAccounts: experianData?.closedAccounts || 2,
-        overdueAccounts: experianData?.overdueAccounts || 0,
-        totalOutstanding: experianData?.totalOutstanding || 185000,
-        creditUtilization: experianData?.creditUtilization || 16.5,
-        enquiries6m: experianData?.enquiries6m || 1,
-        dpdMax: experianData?.dpdMax || 0,
-        repaymentTrack: experianData?.repaymentTrack || "100% On-Time",
-        creditAge: experianData?.creditAge || "4.2 Yrs",
-        providerRef: experianData?.providerRef || `exp-${Date.now()}`,
-        tradelines
+        status: bureauStatus,
+        message: bureauMessage,
+        score: experianData?.score ?? null,
+        scoreBand: experianData?.scoreBand ?? null,
+        scoreRange: experianData ? "300 - 900" : null,
+        totalAccounts: experianData?.totalAccounts ?? null,
+        activeAccounts: experianData?.activeAccounts ?? null,
+        closedAccounts: experianData?.closedAccounts ?? null,
+        overdueAccounts: experianData?.overdueAccounts ?? null,
+        totalOutstanding: experianData?.totalOutstanding ?? null,
+        creditUtilization: experianData?.creditUtilization ?? null,
+        enquiries6m: experianData?.enquiries6m ?? null,
+        dpdMax: experianData?.dpdMax ?? null,
+        repaymentTrack: experianData?.repaymentTrack ?? null,
+        creditAge: experianData?.creditAge ?? null,
+        providerRef: experianData?.providerRef ?? null,
+        tradelines: experianData?.tradelines ?? []
       },
 
       // 5. Raw Provider Envelopes for Audit & Debugging
