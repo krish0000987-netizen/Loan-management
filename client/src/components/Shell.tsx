@@ -5,7 +5,8 @@ import {
   Landmark, Wallet, HandCoins, Building2, BadgeCheck, ScrollText, BarChart3, BrainCircuit,
   Settings2, Plug2, Search, Bell, LogOut, ChevronRight, Activity, AlertTriangle, FileSearch,
   Globe2, GitPullRequest, Store, Handshake, Coins, HeartPulse, Megaphone, RefreshCw, Zap, Calculator, SlidersHorizontal, ListTodo, Wrench,
-  UsersRound, UserPlus, Layers, Rocket, Plug, TrendingUp, Inbox, BookOpen, LifeBuoy, GitCommitHorizontal, Trash2
+  UsersRound, UserPlus, Layers, Rocket, Plug, TrendingUp, Inbox, BookOpen, LifeBuoy, GitCommitHorizontal, Trash2,
+  Sparkles
 } from "lucide-react";
 import { api, fmtDateTime, timeAgo } from "../lib/api";
 import { useAuth, ROLE_LABELS } from "../lib/auth";
@@ -97,6 +98,7 @@ const NAV: NavGroup[] = [
   },
   {
     section: "Platform", items: [
+      { to: "/test-portal", label: "Digitap & CellX Portal", icon: Sparkles },
       { to: "/network", label: "Network & DSA", icon: Building2 },
       { to: "/integrations", label: "Integrations", icon: Plug2 },
       { to: "/doclab", label: "API Test Lab", icon: FileSearch },

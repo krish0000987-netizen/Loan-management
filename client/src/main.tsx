@@ -8,6 +8,7 @@ import { PortalShell } from "./components/PortalShell";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import ApplyRoot from "./pages/apply/ApplyRoot";
+import DigitapTestPortal from "./pages/DigitapTestPortal";
 import Channel from "./pages/Channel";
 import PortalDashboard from "./pages/portal/PortalDashboard";
 import PortalApply from "./pages/portal/PortalApply";
@@ -105,6 +106,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/apply" element={<ApplyRoot />} />
           <Route path="/apply/*" element={<ApplyRoot />} />
+          <Route path="/test-portal" element={<DigitapTestPortal />} />
+          <Route path="/digitap-portal" element={<DigitapTestPortal />} />
           <Route path="/app" element={<Protected><Home /></Protected>} />
           <Route path="/leads" element={<Protected><Leads /></Protected>} />
           <Route path="/leads/:id" element={<Protected><LeadDetail /></Protected>} />

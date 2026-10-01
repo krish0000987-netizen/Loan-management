@@ -200,7 +200,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBookDemo, onOpenTour, onOp
           </nav>
 
           {/* Right Action CTAs */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2.5">
+            <a 
+              href="#/test-portal"
+              className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>CellX + Digitap Portal</span>
+            </a>
+
             <button 
               onClick={onOpenLiveDemo}
               className="px-3.5 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1.5"
@@ -266,6 +274,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenBookDemo, onOpenTour, onOp
           </div>
 
           <nav className="flex flex-col space-y-1 text-sm font-medium text-slate-800">
+            <a href="#/test-portal" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-lg bg-emerald-50 text-emerald-800 font-bold border border-emerald-200">
+              🧪 CellX + Digitap Test Portal
+            </a>
             <a href="#los" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-lg hover:bg-slate-50">Loan Origination (LOS)</a>
             <a href="#lms" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-lg hover:bg-slate-50">Loan Servicing (LMS)</a>
             <a href="#bre" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 rounded-lg hover:bg-slate-50">Credit BRE Engine</a>

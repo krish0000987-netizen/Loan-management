@@ -25,6 +25,7 @@ import { analyticsRouter } from "./routes/analytics.js";
 import { adminRouter } from "./routes/admin.js";
 import { doclabRouter } from "./routes/doclab.js";
 import { originationRouter } from "./routes/origination.js";
+import { digitapPortalRouter } from "./routes/digitap-portal.js";
 import { webhooksRouter } from "./routes/webhooks.js";
 import { errorHandler } from "./middleware.js";
 
@@ -58,6 +59,9 @@ export async function createApp() {
   app.use("/api/auth", authRouter);
   // Public digital origination & webhooks — mounted before auth-guarded routers
   app.use("/api/origination", originationRouter);
+  // Public Digitap Test Portal routes
+  app.use("/api/digitap-portal", digitapPortalRouter);
+  app.use("/api/digitap", digitapPortalRouter);
   app.use("/api/webhooks", webhooksRouter);
   // Public lender webhooks — must mount before the auth-guarded routers (router-level guards
   // apply to every /api request that passes through them).

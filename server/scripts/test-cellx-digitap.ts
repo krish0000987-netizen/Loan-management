@@ -50,6 +50,27 @@ async function runTest() {
   console.log("    - Experian Result:", experian);
   console.log(`    ✓ Experian Credit Score: ${experian.score} (${experian.scoreBand})`);
 
+  // 6. Test PAN and Masked Aadhaar
+  console.log(`\n[6] Testing PAN & Masked Aadhaar via Digitap APIs:`);
+  try {
+    const { panToMaskedAadhaar, panDetails } = await import("../src/adapters/digitap.js");
+    const testPan = "BZXPM1234F";
+    try {
+      const panRes = await panDetails({ pan: testPan });
+      console.log("    - PAN Details:", panRes);
+    } catch (e: any) {
+      console.log("    - PAN Details test:", e.message);
+    }
+    try {
+      const aadhRes = await panToMaskedAadhaar(testPan);
+      console.log("    - Masked Aadhaar result:", aadhRes);
+    } catch (e: any) {
+      console.log("    - panToMaskedAadhaar test:", e.message);
+    }
+  } catch (err: any) {
+    console.log("    - PAN/Aadhaar error:", err.message);
+  }
+
   console.log("\n==================================================================");
   console.log("       ALL INTEGRATION CHECKS COMPLETED SUCCESSFULLY              ");
   console.log("==================================================================");
