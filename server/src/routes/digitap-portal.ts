@@ -232,8 +232,8 @@ digitapPortalRouter.post(
         env: body.env
       });
       rawEnvelopes["experian_bureau"] = experianData;
-      bureauStatus = "FETCHED";
-      bureauMessage = `Experian CIR report successfully retrieved for +91 ${normMobile}`;
+      bureauStatus = experianData.status || (experianData.score !== null ? "FETCHED" : "NOT_ENABLED_ON_CLIENT");
+      bureauMessage = experianData.message || (experianData.score !== null ? `Experian CIR report successfully retrieved for +91 ${normMobile}` : "Experian bureau not active on this client.");
     } catch (err: any) {
       rawEnvelopes["experian_bureau"] = {
         error: err.message,

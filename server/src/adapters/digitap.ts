@@ -550,20 +550,22 @@ export interface ExperianTradeline {
 }
 
 export interface ExperianBureauResult {
-  score: number;
-  scoreBand: string;
-  activeAccounts: number;
-  closedAccounts: number;
-  overdueAccounts: number;
-  totalOutstanding: number;
-  creditUtilization: number;
-  enquiries6m: number;
-  dpdMax: number;
-  repaymentTrack: string;
-  creditAge: string;
+  score: number | null;
+  scoreBand: string | null;
+  activeAccounts: number | null;
+  closedAccounts: number | null;
+  overdueAccounts: number | null;
+  totalOutstanding: number | null;
+  creditUtilization: number | null;
+  enquiries6m: number | null;
+  dpdMax: number | null;
+  repaymentTrack: string | null;
+  creditAge: string | null;
   provider: string;
-  providerRef: string;
+  providerRef: string | null;
   tradelines?: ExperianTradeline[];
+  status?: string;
+  message?: string;
 }
 
 export async function mnvOtpSend(mobile: string): Promise<MnvOtpSendResult> {
@@ -861,53 +863,94 @@ export async function pullExperianReport(params: {
   const mob = digits.length === 12 && digits.startsWith("91") ? digits.slice(2) : digits;
   const config = digitapConfig(params.env);
 
-  // If live endpoints are configured or enabled, query them
-  if (config.creds) {
-    const endpoints = [
-      process.env.DIGITAP_EXPERIAN_ENDPOINT || "",
-      process.env.EXPERIAN_API_URL || "",
-      "/credit/v1/experian",
-      "/validation/bureau/v1/experian"
-    ].filter(Boolean);
-
-    const payload = {
-      client_ref_num: clientRef("exp"),
-      mobile: mob,
-      pan: params.pan || undefined,
-      name: params.name || undefined
+  if (!config.creds) {
+    return {
+      score: null,
+      scoreBand: null,
+      activeAccounts: null,
+      closedAccounts: null,
+      overdueAccounts: null,
+      totalOutstanding: null,
+      creditUtilization: null,
+      enquiries6m: null,
+      dpdMax: null,
+      repaymentTrack: null,
+      creditAge: null,
+      provider: "DIGITAP-EXPERIAN",
+      providerRef: null,
+      tradelines: [],
+      status: "NOT_CONFIGURED",
+      message: "Digitap credentials are not configured in environment."
     };
+  }
 
-    for (const ep of endpoints) {
-      try {
-        const { envelope, httpStatus } = await post(config.creds, ep, payload, 1);
-        if (httpStatus === 200 && envelope.result) {
-          const r = envelope.result as Record<string, any>;
-          const deterministic = generateDeterministicExperianReport(mob, params.name, params.pan);
-          return {
-            score: Number(r.score || r.credit_score || deterministic.score),
-            scoreBand: String(r.score_band || r.rating || deterministic.scoreBand),
-            activeAccounts: Number(r.active_accounts || deterministic.activeAccounts),
-            closedAccounts: Number(r.closed_accounts || deterministic.closedAccounts),
-            overdueAccounts: Number(r.overdue_accounts || 0),
-            totalOutstanding: Number(r.total_outstanding || deterministic.totalOutstanding),
-            creditUtilization: Number(r.credit_utilization || deterministic.creditUtilization),
-            enquiries6m: Number(r.enquiries_6m || deterministic.enquiries6m),
-            dpdMax: Number(r.dpd_max || 0),
-            repaymentTrack: String(r.repayment_track || deterministic.repaymentTrack),
-            creditAge: String(r.credit_age || deterministic.creditAge),
-            provider: "DIGITAP-EXPERIAN",
-            providerRef: envelope.request_id || String(payload.client_ref_num),
-            tradelines: r.tradelines || deterministic.tradelines
-          };
-        }
-      } catch (err: any) {
-        // live route not responding or requires separate RM enablement — proceed to synthesizer
+  const endpoints = [
+    process.env.DIGITAP_EXPERIAN_ENDPOINT || "",
+    process.env.EXPERIAN_API_URL || "",
+    "/credit/v1/experian",
+    "/bureau/v1/experian",
+    "/validation/bureau/v1/experian"
+  ].filter(Boolean);
+
+  const payload = {
+    client_ref_num: clientRef("exp"),
+    mobile: mob,
+    pan: params.pan || undefined,
+    name: params.name || undefined
+  };
+
+  let lastError = "";
+
+  for (const ep of endpoints) {
+    try {
+      const { envelope, httpStatus } = await post(config.creds, ep, payload, 1);
+      if (httpStatus === 200 && envelope.result && (envelope.result as any).score !== undefined) {
+        const r = envelope.result as Record<string, any>;
+        return {
+          score: Number(r.score || r.credit_score),
+          scoreBand: String(r.score_band || r.rating || "Standard"),
+          activeAccounts: Number(r.active_accounts || 0),
+          closedAccounts: Number(r.closed_accounts || 0),
+          overdueAccounts: Number(r.overdue_accounts || 0),
+          totalOutstanding: Number(r.total_outstanding || 0),
+          creditUtilization: Number(r.credit_utilization || 0),
+          enquiries6m: Number(r.enquiries_6m || 0),
+          dpdMax: Number(r.dpd_max || 0),
+          repaymentTrack: String(r.repayment_track || "N/A"),
+          creditAge: String(r.credit_age || "N/A"),
+          provider: "DIGITAP-EXPERIAN",
+          providerRef: envelope.request_id || String(payload.client_ref_num),
+          tradelines: Array.isArray(r.tradelines) ? r.tradelines : [],
+          status: "FETCHED",
+          message: "Real Experian CIR report retrieved from Digitap."
+        };
+      } else {
+        lastError = `HTTP ${httpStatus}: ${envelope.message || envelope.error || "No bureau score in response"}`;
       }
+    } catch (err: any) {
+      lastError = err.message || String(err);
     }
   }
 
-  // Seamlessly return data for the mobile number given in portal
-  return generateDeterministicExperianReport(mob, params.name, params.pan);
+  // Strictly return NOT_ENABLED without fabricating fake data
+  return {
+    score: null,
+    scoreBand: null,
+    activeAccounts: null,
+    closedAccounts: null,
+    overdueAccounts: null,
+    totalOutstanding: null,
+    creditUtilization: null,
+    enquiries6m: null,
+    dpdMax: null,
+    repaymentTrack: null,
+    creditAge: null,
+    provider: "DIGITAP-EXPERIAN",
+    providerRef: null,
+    tradelines: [],
+    status: "NOT_ENABLED_ON_CLIENT",
+    message: `Real Experian data could not be fetched. Digitap returned: ${lastError || "HTTP 503 Service Not Found"}. Client ID ${config.creds.clientId} only has KYC Validation Suite enabled, not Credit Bureau Suite.`
+  };
 }
 
 /* ============================================================
