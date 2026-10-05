@@ -320,8 +320,10 @@ export interface VerifyOtpResult {
 export async function verifyOtpChallenge(
   tenantId: number,
   journeyToken: string,
-  candidateOtp: string
+  candidateOtp: string,
+  mobileOptional?: string
 ): Promise<VerifyOtpResult> {
+  const normMobile = mobileOptional ? normalizeMobile(mobileOptional) : "";
   const challenge = await q1<{
     id: number;
     mobile: string;
@@ -333,9 +335,9 @@ export async function verifyOtpChallenge(
   }>(
     `SELECT id, mobile, otp_hash, attempts, max_attempts, verified, expires_at
      FROM otp_challenges
-     WHERE tenant_id = ? AND journey_token = ?
+     WHERE tenant_id = ? AND (journey_token = ? ${normMobile ? "OR mobile = ?" : ""})
      ORDER BY id DESC LIMIT 1`,
-    [tenantId, journeyToken]
+    normMobile ? [tenantId, journeyToken, normMobile] : [tenantId, journeyToken]
   );
 
   if (!challenge) {

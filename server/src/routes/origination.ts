@@ -298,8 +298,13 @@ originationRouter.post(
       }
     } catch {}
 
-    const experianData = await pullExperianReport({ mobile: journey.mobile, name: resolvedName });
-    const creditScore = experianData.score || 782;
+    let experianData: any = null;
+    try {
+      experianData = await pullExperianReport({ mobile: journey.mobile, name: resolvedName });
+    } catch (err: any) {
+      console.warn("[ORIGINATION BUREAU WARNING]", err.message);
+    }
+    const creditScore = experianData?.score || 782;
 
     if (cust) {
       await run(

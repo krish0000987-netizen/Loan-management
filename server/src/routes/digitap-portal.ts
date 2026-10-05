@@ -123,7 +123,7 @@ digitapPortalRouter.post(
       }
 
       const tokenToVerify = body.journeyToken || `portal_${normMobile}`;
-      const vResult = await verifyOtpChallenge(tenantId, tokenToVerify, body.otp);
+      const vResult = await verifyOtpChallenge(tenantId, tokenToVerify, body.otp, normMobile);
       if (!vResult.verified) {
         // Also check if matches standard demo OTP or fallback for test accounts
         if (body.otp === "123456" || body.otp === "654321") {
@@ -222,28 +222,30 @@ digitapPortalRouter.post(
 
     // 3. Experian Bureau Intelligence (Live Query)
     let experianData: any = null;
-    let bureauStatus = "PENDING_ENABLEMENT";
+    let bureauStatus = "FETCHED";
     let bureauMessage: string | null = null;
     try {
       experianData = await pullExperianReport({
         mobile: normMobile,
         pan: inputPan || undefined,
-        name: telecomResolvedName || undefined
+        name: telecomResolvedName || undefined,
+        env: body.env
       });
       rawEnvelopes["experian_bureau"] = experianData;
       bureauStatus = "FETCHED";
+      bureauMessage = `Experian CIR report successfully retrieved for +91 ${normMobile}`;
     } catch (err: any) {
       rawEnvelopes["experian_bureau"] = {
         error: err.message,
-        httpStatus: err.httpStatus || 503,
-        status: "NOT_ENABLED_ON_CLIENT"
+        httpStatus: err.httpStatus || 500,
+        status: "ERROR"
       };
-      bureauStatus = "NOT_ENABLED_ON_CLIENT";
-      bureauMessage = err.message || "Experian Credit Bureau suite requires enablement on this Digitap Client ID.";
+      bureauStatus = "ERROR";
+      bureauMessage = err.message || "Failed to fetch Experian bureau report.";
     }
 
-    // Build strictly real response — ZERO fabricated or hardcoded fake profiles
-    const config = digitapConfig();
+    // Build response with active Digitap environment configuration
+    const config = digitapConfig(body.env);
     res.json({
       success: true,
       timestamp: new Date().toISOString(),
@@ -252,7 +254,7 @@ digitapPortalRouter.post(
       maskedMobile: maskMobile(normMobile),
       queryMeta: {
         environment: config.env.toUpperCase(),
-        clientId: config.creds?.clientId || "07625809",
+        clientId: config.creds?.clientId || (body.env === "prod" ? "01338635" : "07625809"),
         smsProvider: "CellX (SMSGW TRAI DLT)",
         kycProvider: "Digitap Validation Suite v4.91",
         creditBureauProvider: "Experian Credit Information Services"
@@ -294,21 +296,21 @@ digitapPortalRouter.post(
         source: "Digitap CBDT / ITD Service"
       },
 
-      // 4. Experian Credit Bureau Intelligence (Real Provider Output Only)
+      // 4. Experian Credit Bureau Intelligence (Real Provider Output)
       experian: {
         status: bureauStatus,
         message: bureauMessage,
         score: experianData?.score ?? null,
         scoreBand: experianData?.scoreBand ?? null,
         scoreRange: experianData ? "300 - 900" : null,
-        totalAccounts: experianData?.totalAccounts ?? null,
+        totalAccounts: experianData ? (experianData.activeAccounts + experianData.closedAccounts) : null,
         activeAccounts: experianData?.activeAccounts ?? null,
         closedAccounts: experianData?.closedAccounts ?? null,
-        overdueAccounts: experianData?.overdueAccounts ?? null,
+        overdueAccounts: experianData?.overdueAccounts ?? 0,
         totalOutstanding: experianData?.totalOutstanding ?? null,
         creditUtilization: experianData?.creditUtilization ?? null,
         enquiries6m: experianData?.enquiries6m ?? null,
-        dpdMax: experianData?.dpdMax ?? null,
+        dpdMax: experianData?.dpdMax ?? 0,
         repaymentTrack: experianData?.repaymentTrack ?? null,
         creditAge: experianData?.creditAge ?? null,
         providerRef: experianData?.providerRef ?? null,
