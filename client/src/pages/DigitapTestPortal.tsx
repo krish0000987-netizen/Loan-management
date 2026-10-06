@@ -81,12 +81,28 @@ interface FetchResponse {
     closedAccounts: number | null;
     overdueAccounts: number | null;
     totalOutstanding: number | null;
+    securedOutstanding?: number | null;
+    unsecuredOutstanding?: number | null;
     creditUtilization: number | null;
     enquiries6m: number | null;
     dpdMax: number | null;
     repaymentTrack: string | null;
     creditAge: string | null;
     providerRef: string | null;
+    applicantDetails?: {
+      firstName?: string | null;
+      lastName?: string | null;
+      fullName?: string | null;
+      pan?: string | null;
+      dob?: string | null;
+      gender?: string | null;
+      address?: string | null;
+      city?: string | null;
+      state?: string | null;
+      pincode?: string | null;
+      email?: string | null;
+      mobile?: string | null;
+    } | null;
     tradelines: Array<{
       accountNumber: string;
       lender: string;
@@ -326,28 +342,51 @@ export default function DigitapTestPortal() {
               <Smartphone className="w-4 h-4 text-emerald-400" />
               <span>Step 1: Input Parameters</span>
             </h2>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400 hidden sm:inline">Digitap UAT Pre-seeded Numbers:</span>
+            <div className="flex items-center gap-1.5 flex-wrap text-xs">
+              <span className="text-slate-400 hidden sm:inline">Experian UAT Dataset:</span>
               <button
-                onClick={() => { setMobile("9820123456"); }}
-                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Digitap UAT: RANJODH SINGH DHILLON"
+                onClick={() => {
+                  setMobile("7908096603");
+                  setPan("FAWPD4345T");
+                  setOtp("123456");
+                }}
+                className="px-2.5 py-1 rounded bg-purple-950/70 hover:bg-purple-900 text-purple-200 border border-purple-600/50 font-mono text-[11px] transition-colors"
+                title="Digitap UAT Experian: Shubhra Dutta (Score: 772, Property Loan)"
               >
-                9820123456
+                7908096603 (Shubhra)
               </button>
               <button
-                onClick={() => { setMobile("9810012345"); }}
-                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Digitap UAT: Lalit Singh Negi"
+                onClick={() => {
+                  setMobile("9305553595");
+                  setPan("VDRPS3454R");
+                  setOtp("123456");
+                }}
+                className="px-2.5 py-1 rounded bg-purple-950/70 hover:bg-purple-900 text-purple-200 border border-purple-600/50 font-mono text-[11px] transition-colors"
+                title="Digitap UAT Experian: Piyush Shukla (Score: 772)"
               >
-                9810012345
+                9305553595 (Piyush)
               </button>
               <button
-                onClick={() => { setMobile("9876543210"); }}
+                onClick={() => {
+                  setMobile("9822616123");
+                  setPan("TGHPS7231K");
+                  setOtp("123456");
+                }}
                 className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Digitap UAT: MITU DAS"
+                title="Digitap UAT Experian: Sukhjinder Singh"
               >
-                9876543210
+                9822616123 (Sukhjinder)
+              </button>
+              <button
+                onClick={() => {
+                  setMobile("8416986878");
+                  setPan("BDRPS5609Y");
+                  setOtp("123456");
+                }}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
+                title="Digitap UAT Experian: Deepti Singh"
+              >
+                8416986878 (Deepti)
               </button>
             </div>
           </div>
@@ -924,7 +963,7 @@ export default function DigitapTestPortal() {
                             </span>
                           </div>
                           <p className="text-xs text-slate-400 pt-1">
-                            Calculated by Experian India Credit Information Services • Prime Risk Tier
+                            Calculated by Experian India Credit Information Services • Credit Analytics API v2.7
                           </p>
                         </div>
 
@@ -955,6 +994,57 @@ export default function DigitapTestPortal() {
                       </div>
                     </div>
 
+                    {/* Experian Identified Applicant Profile Card */}
+                    {result.experian.applicantDetails && (result.experian.applicantDetails.fullName || result.experian.applicantDetails.pan) && (
+                      <div className="p-4 rounded-xl bg-slate-950/90 border border-purple-500/30 text-xs space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                          <span className="font-bold text-purple-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                            <UserCheck className="w-3.5 h-3.5 text-purple-400" />
+                            Experian Registered Profile & KYC
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">
+                            Bureau Match (Exact)
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-slate-300">
+                          <div>
+                            <span className="text-[10px] text-slate-500 uppercase block font-semibold">Full Name</span>
+                            <span className="font-bold text-white text-sm">
+                              {result.experian.applicantDetails.fullName || "N/A"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 uppercase block font-semibold">Bureau Linked PAN</span>
+                            <span className="font-mono font-bold text-emerald-400 text-sm">
+                              {result.experian.applicantDetails.pan || "N/A"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 uppercase block font-semibold">Date of Birth</span>
+                            <span className="font-mono text-white text-sm">
+                              {result.experian.applicantDetails.dob || "N/A"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 uppercase block font-semibold">Bureau Email</span>
+                            <span className="text-white truncate block text-xs">
+                              {result.experian.applicantDetails.email || "N/A"}
+                            </span>
+                          </div>
+                          {result.experian.applicantDetails.address && (
+                            <div className="col-span-2 sm:col-span-4 pt-1 border-t border-slate-800/60">
+                              <span className="text-[10px] text-slate-500 uppercase block font-semibold">Bureau Registered Address</span>
+                              <span className="text-slate-300">
+                                {result.experian.applicantDetails.address}
+                                {result.experian.applicantDetails.city ? `, ${result.experian.applicantDetails.city}` : ""}
+                                {result.experian.applicantDetails.pincode ? ` - ${result.experian.applicantDetails.pincode}` : ""}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Key Risk & Credit Metrics Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
@@ -968,7 +1058,11 @@ export default function DigitapTestPortal() {
                         <div className="text-lg font-bold text-white font-mono">
                           ₹{Number(result.experian.totalOutstanding || 0).toLocaleString("en-IN")}
                         </div>
-                        <span className="text-[10.5px] text-emerald-400">Healthy debt ratio</span>
+                        <span className="text-[10.5px] text-slate-400">
+                          {result.experian.securedOutstanding !== null && result.experian.securedOutstanding !== undefined
+                            ? `Secured: ₹${Number(result.experian.securedOutstanding).toLocaleString("en-IN")}`
+                            : "Healthy debt ratio"}
+                        </span>
                       </div>
 
                       <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
@@ -980,7 +1074,9 @@ export default function DigitapTestPortal() {
                       <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
                         <span className="text-xs text-slate-400">Max DPD / Delinquency</span>
                         <div className="text-lg font-bold text-emerald-400 font-mono">{result.experian.dpdMax ?? 0} DPD</div>
-                        <span className="text-[10.5px] text-emerald-400">Zero Overdue Accounts</span>
+                        <span className="text-[10.5px] text-emerald-400">
+                          {result.experian.dpdMax === 0 ? "Zero Overdue Accounts" : `${result.experian.dpdMax} Days Past Due`}
+                        </span>
                       </div>
                     </div>
 
@@ -1072,16 +1168,36 @@ export default function DigitapTestPortal() {
                     <p className="text-xs text-slate-300 leading-relaxed">
                       {result.experian.message || "Experian Credit Bureau API requires product entitlement on this Digitap Client ID."}
                     </p>
+                    {result.experian.status === "IP_BLOCKED" && (
+                      <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/30 text-xs text-rose-200 space-y-1">
+                        <strong className="text-rose-100">Digitap Production IP Whitelisting:</strong>
+                        <p>
+                          Production Client ID <code className="text-cyan-400">01338635</code> returned HTTP 403 (IP not allowed).
+                          Your testing IP <code className="text-cyan-400">59.95.37.247</code> has been submitted to Digitap for whitelisting.
+                        </p>
+                        <p className="pt-1 text-slate-300">
+                          👉 Switch the environment above to <strong>UAT (07625809)</strong> to test with live Experian bureau data immediately!
+                        </p>
+                      </div>
+                    )}
+                    {result.experian.status === "NO_RECORD_FOUND" && (
+                      <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-1">
+                        <strong className="text-white">Thin File / No Bureau History:</strong>
+                        <p>
+                          Digitap and Experian returned Result Code 102 ("no record found"). The applicant has no active or historical credit records registered under this mobile number.
+                        </p>
+                      </div>
+                    )}
                     <div className="p-3 rounded-lg bg-slate-900 text-xs text-slate-400 space-y-1">
-                      <strong className="text-slate-200">How to activate Experian live pulls:</strong>
+                      <strong className="text-slate-200">Credit Analytics API v2.7 Specifications:</strong>
                       <p>
-                        1. Digitap separates the <strong>KYC Validation Suite</strong> (which is active on your Client ID {result.queryMeta.clientId}) from the <strong>Credit Bureau Suite (Experian/CIBIL)</strong>.
+                        • Production Endpoint: <code className="text-cyan-400">https://api.digitap.ai/credit_analytics/request</code>
                       </p>
                       <p>
-                        2. Contact your Digitap Relationship Manager (RM) or email <code className="text-cyan-400">support@digitap.ai</code> to activate the Experian CIR product contract for Client ID <code className="text-cyan-400">{result.queryMeta.clientId}</code>.
+                        • UAT / Demo Endpoint: <code className="text-cyan-400">https://apidemo.digitap.work/credit_analytics/request</code>
                       </p>
                       <p>
-                        3. For Production (<code className="text-cyan-400">01338635</code>), egress IP whitelisting has been submitted.
+                        • Mandatory Parameters: <code className="text-slate-300">mobile_no, otp, consent_message, consent_acceptance, timestamp, device_ip, device_type</code>
                       </p>
                     </div>
                   </div>

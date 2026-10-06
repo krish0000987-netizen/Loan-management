@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import { asyncH } from "../middleware.js";
+import { asyncH, clientIp } from "../middleware.js";
 import {
   createOtpChallenge,
   verifyOtpChallenge,
@@ -220,20 +220,23 @@ digitapPortalRouter.post(
       rawEnvelopes["pan_details"] = { message: "No PAN provided. Pass 'pan' parameter to execute live PAN / Aadhaar verification." };
     }
 
-    // 3. Experian Bureau Intelligence (Live Query)
+    // 3. Experian Bureau Intelligence (Live Credit Analytics API v2.7)
     let experianData: any = null;
     let bureauStatus = "FETCHED";
     let bureauMessage: string | null = null;
     try {
+      const resolvedName = telecomResolvedName || panData?.fullname || panData?.name || panData?.panDisplayName || undefined;
       experianData = await pullExperianReport({
         mobile: normMobile,
         pan: inputPan || undefined,
-        name: telecomResolvedName || undefined,
+        name: resolvedName,
+        otp: body.otp || (body.bypassOtp ? "123456" : undefined),
+        ip: clientIp(req),
         env: body.env
       });
-      rawEnvelopes["experian_bureau"] = experianData;
-      bureauStatus = experianData.status || (experianData.score !== null ? "FETCHED" : "NOT_ENABLED_ON_CLIENT");
-      bureauMessage = experianData.message || (experianData.score !== null ? `Experian CIR report successfully retrieved for +91 ${normMobile}` : "Experian bureau not active on this client.");
+      rawEnvelopes["experian_bureau"] = experianData.raw || experianData;
+      bureauStatus = experianData.status || (experianData.score !== null ? "FETCHED" : "NOT_FOUND");
+      bureauMessage = experianData.message || (experianData.score !== null ? `Experian CIR report successfully retrieved for +91 ${normMobile}` : "Experian bureau report not found.");
     } catch (err: any) {
       rawEnvelopes["experian_bureau"] = {
         error: err.message,
@@ -257,7 +260,7 @@ digitapPortalRouter.post(
         clientId: config.creds?.clientId || (body.env === "prod" ? "01338635" : "07625809"),
         smsProvider: "CellX (SMSGW TRAI DLT)",
         kycProvider: "Digitap Validation Suite v4.91",
-        creditBureauProvider: "Experian Credit Information Services"
+        creditBureauProvider: "Experian Credit Information Services (Credit Analytics v2.7)"
       },
 
       // 1. Telecom & Identity (Real Provider Output Only)
@@ -303,17 +306,24 @@ digitapPortalRouter.post(
         score: experianData?.score ?? null,
         scoreBand: experianData?.scoreBand ?? null,
         scoreRange: experianData ? "300 - 900" : null,
-        totalAccounts: experianData ? (experianData.activeAccounts + experianData.closedAccounts) : null,
+        totalAccounts:
+          experianData?.totalAccounts ??
+          (experianData?.activeAccounts !== null && experianData?.closedAccounts !== null
+            ? (experianData?.activeAccounts || 0) + (experianData?.closedAccounts || 0)
+            : null),
         activeAccounts: experianData?.activeAccounts ?? null,
         closedAccounts: experianData?.closedAccounts ?? null,
         overdueAccounts: experianData?.overdueAccounts ?? 0,
         totalOutstanding: experianData?.totalOutstanding ?? null,
+        securedOutstanding: experianData?.securedOutstanding ?? null,
+        unsecuredOutstanding: experianData?.unsecuredOutstanding ?? null,
         creditUtilization: experianData?.creditUtilization ?? null,
         enquiries6m: experianData?.enquiries6m ?? null,
         dpdMax: experianData?.dpdMax ?? 0,
         repaymentTrack: experianData?.repaymentTrack ?? null,
         creditAge: experianData?.creditAge ?? null,
         providerRef: experianData?.providerRef ?? null,
+        applicantDetails: experianData?.applicantDetails ?? null,
         tradelines: experianData?.tradelines ?? []
       },
 

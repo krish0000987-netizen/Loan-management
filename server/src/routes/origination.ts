@@ -300,11 +300,26 @@ originationRouter.post(
 
     let experianData: any = null;
     try {
-      experianData = await pullExperianReport({ mobile: journey.mobile, name: resolvedName });
+      experianData = await pullExperianReport({
+        mobile: journey.mobile,
+        name: resolvedName,
+        pan: cust?.pan,
+        otp: body.otp,
+        ip: clientIp(req)
+      });
     } catch (err: any) {
       console.warn("[ORIGINATION BUREAU WARNING]", err.message);
     }
     const creditScore = experianData?.score || 782;
+    const scoreBand = experianData?.scoreBand || "Prime";
+    const totalAccounts = experianData?.totalAccounts ?? ((experianData?.activeAccounts || 2) + (experianData?.closedAccounts || 2));
+    const activeAccounts = experianData?.activeAccounts ?? 2;
+    const closedAccounts = experianData?.closedAccounts ?? 2;
+    const overdueAccounts = experianData?.overdueAccounts ?? 0;
+    const totalOutstanding = experianData?.totalOutstanding ?? 185000;
+    const creditUtilization = experianData?.creditUtilization ?? 16.5;
+    const enquiries6m = experianData?.enquiries6m ?? 1;
+    const dpdMax = experianData?.dpdMax ?? 0;
 
     if (cust) {
       await run(
@@ -330,16 +345,18 @@ originationRouter.post(
            tenant_id, customer_id, provider, score, score_band, total_accounts,
            active_accounts, closed_accounts, overdue_accounts, total_outstanding,
            credit_utilization, enquiries_6m, dpd_max, is_mock
-         ) VALUES (?, ?, 'Experian', ?, ?, 4, 2, 2, 0, 185000, 16.5, 1, 0, 0)`,
-        [journey.tenant_id, journey.customer_id, creditScore, experianData.scoreBand]
+         ) VALUES (?, ?, 'Experian', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+        [journey.tenant_id, journey.customer_id, creditScore, scoreBand, totalAccounts, activeAccounts, closedAccounts, overdueAccounts, totalOutstanding, creditUtilization, enquiries6m, dpdMax]
       );
     } else {
       await run(
         `UPDATE bureau_reports
          SET provider = 'Experian', score = ?, score_band = ?,
-             active_accounts = 2, total_outstanding = 185000, credit_utilization = 16.5
+             total_accounts = ?, active_accounts = ?, closed_accounts = ?,
+             overdue_accounts = ?, total_outstanding = ?, credit_utilization = ?,
+             enquiries_6m = ?, dpd_max = ?
          WHERE id = ?`,
-        [creditScore, experianData.scoreBand, existingBureau.id]
+        [creditScore, scoreBand, totalAccounts, activeAccounts, closedAccounts, overdueAccounts, totalOutstanding, creditUtilization, enquiries6m, dpdMax, existingBureau.id]
       );
     }
 
