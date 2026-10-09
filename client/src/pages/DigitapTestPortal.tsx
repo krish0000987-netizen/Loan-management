@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   ShieldCheck,
+  ShieldAlert,
   Smartphone,
   CreditCard,
   Building2,
@@ -180,12 +181,12 @@ export default function DigitapTestPortal() {
   };
 
   // Handle Verify & Fetch Digitap Data
-  const handleFetchData = async (bypassOtp = false) => {
+  const handleFetchData = async (bypass = false, simulateBureau = false) => {
     if (!mobile || mobile.replace(/\D/g, "").length !== 10) {
       setError("Please enter a valid 10-digit Indian mobile number.");
       return;
     }
-    if (!bypassOtp && !otp) {
+    if (!bypass && !otp) {
       setError("Please enter the 6-digit OTP received on your mobile, or click 'Instant 1-Click Fetch'.");
       return;
     }
@@ -200,10 +201,11 @@ export default function DigitapTestPortal() {
         body: JSON.stringify({
           mobile: mobile.trim(),
           otp: otp.trim(),
-          bypassOtp,
+          bypassOtp: bypass,
           journeyToken,
           pan: pan.trim() || undefined,
-          env
+          env,
+          simulateBureau
         })
       });
 
@@ -213,7 +215,11 @@ export default function DigitapTestPortal() {
       }
 
       setResult(data);
-      setActiveTab("360");
+      if (simulateBureau) {
+        setActiveTab("experian");
+      } else if (!result) {
+        setActiveTab("360");
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred during Digitap verification.");
     } finally {
@@ -600,12 +606,18 @@ export default function DigitapTestPortal() {
                           ? "bg-emerald-500/20 text-emerald-300"
                           : result.experian.status === "NO_RECORD_FOUND"
                           ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                          : result.experian.status === "AUTH_FAILED"
+                          ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                          : result.experian.status === "IP_BLOCKED"
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                           : "bg-amber-500/20 text-amber-300"
                       }`}>
                         {result.experian.status === "FETCHED"
                           ? (result.experian.scoreBand || "Score Available")
                           : result.experian.status === "NO_RECORD_FOUND"
                           ? "API Active • Result 102"
+                          : result.experian.status === "AUTH_FAILED"
+                          ? "Product Entitlement Pending"
                           : result.experian.status === "IP_BLOCKED"
                           ? "IP Whitelist Pending"
                           : "API Connected"}
@@ -621,6 +633,16 @@ export default function DigitapTestPortal() {
                         </div>
                         <p className="text-[11px] text-slate-400 max-w-xs leading-tight mt-0.5">
                           UAT demo sandbox only holds credit records for pre-seeded test numbers.
+                        </p>
+                      </div>
+                    ) : result.experian.status === "AUTH_FAILED" ? (
+                      <div>
+                        <div className="font-mono text-sm font-bold text-rose-400 flex items-center gap-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                          <span>Entitlement Pending</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 max-w-xs leading-tight mt-0.5">
+                          Digitap Client ID requires Credit Analytics product entitlement.
                         </p>
                       </div>
                     ) : (
@@ -980,6 +1002,23 @@ export default function DigitapTestPortal() {
 
                 {result.experian.score !== null ? (
                   <div className="space-y-6">
+                    {result.rawEnvelopes?.experian_bureau?.mode === "SANDBOX_SIMULATION" && (
+                      <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2 text-purple-200">
+                          <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+                          <span>
+                            <strong>Demo Experian Simulation:</strong> Realistic Experian CIR report with interactive scoring & tradeline analytics (Live Digitap RM enablement pending for Client ID 07625809).
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleFetchData(true, false)}
+                          className="px-3 py-1 rounded-lg bg-purple-900/60 hover:bg-purple-800 text-purple-200 font-bold border border-purple-600/40 shrink-0 transition-colors cursor-pointer"
+                        >
+                          Re-check Live Digitap API
+                        </button>
+                      </div>
+                    )}
+
                     {/* Score Hero Card */}
                     <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950/40 border border-purple-500/30 shadow-xl relative overflow-hidden">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1218,10 +1257,84 @@ export default function DigitapTestPortal() {
                           </p>
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 rounded text-[11px] font-bold bg-blue-500/10 text-blue-300 border border-blue-500/30 font-mono">
-                        HTTP 200 OK
+                      <span className={`px-2.5 py-1 rounded text-[11px] font-bold font-mono ${
+                        result.experian.status === "NO_RECORD_FOUND"
+                          ? "bg-blue-500/10 text-blue-300 border border-blue-500/30"
+                          : result.experian.status === "AUTH_FAILED"
+                          ? "bg-rose-500/10 text-rose-300 border border-rose-500/30"
+                          : result.experian.status === "IP_BLOCKED"
+                          ? "bg-amber-500/10 text-amber-300 border border-amber-500/30"
+                          : "bg-slate-800 text-slate-300 border border-slate-700"
+                      }`}>
+                        {result.experian.status === "NO_RECORD_FOUND"
+                          ? "HTTP 200 OK"
+                          : result.experian.status === "AUTH_FAILED"
+                          ? "HTTP 401 Unauthorized"
+                          : result.experian.status === "IP_BLOCKED"
+                          ? "HTTP 403 Forbidden"
+                          : "HTTP 200 OK"}
                       </span>
                     </div>
+
+                    {result.experian.status === "AUTH_FAILED" && (
+                      <div className="space-y-4">
+                        <div className="p-4 rounded-xl bg-rose-950/30 border border-rose-500/40 text-xs text-rose-200 space-y-3">
+                          <div className="flex items-center gap-2 font-bold text-rose-300 text-sm">
+                            <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                            <span>Digitap Credit Analytics: Product Entitlement Pending (HTTP 401)</span>
+                          </div>
+                          <p className="text-slate-300 leading-relaxed">
+                            Your query reached Digitap's gateway (<code className="text-cyan-300">apidemo.digitap.work/credit_analytics/request</code>), but Digitap answered with <strong className="text-white">"Client Authentication Failed" (HTTP 401)</strong>.
+                          </p>
+
+                          <div className="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800 text-[11.5px] space-y-2 text-slate-300">
+                            <div className="font-semibold text-white flex items-center gap-1.5">
+                              <ShieldAlert className="w-4 h-4 text-amber-400" />
+                              <span>Why is this happening?</span>
+                            </div>
+                            <p>
+                              • <strong>KYC Validation Suite (Active)</strong>: Client ID <code className="text-emerald-400 font-mono">07625809</code> has active entitlements for PAN, Aadhaar mapping, and Telecom reverse lookup (which is why Satyajeet's telecom record and PAN worked above).
+                            </p>
+                            <p>
+                              • <strong>Credit Bureau Suite (Not Enabled Yet)</strong>: Experian Credit Analytics v2.7 is a premium add-on product. In Digitap's architecture, an account without active bureau entitlement returns HTTP 401 until your <strong>Digitap Relationship Manager (RM)</strong> enables it.
+                            </p>
+                            <p>
+                              • <strong>Production Environment</strong>: Client ID <code className="text-cyan-400 font-mono">01338635</code> has the entitlement mapped, but requires egress IP whitelisting (<code className="text-cyan-400">59.95.37.247</code>).
+                            </p>
+                          </div>
+
+                          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-rose-500/20 text-slate-300">
+                            <div>
+                              <strong className="text-white block">Next Step with Digitap:</strong>
+                              <span className="text-[11px] text-slate-400">
+                                Email <code className="text-cyan-300">support@digitap.ai</code> with: <em>"Please enable Credit Analytics (Experian CIR) v2.7 on Client ID 07625809"</em>.
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* One-Click Preview Button for Testing / Demo */}
+                        <div className="p-4 rounded-xl bg-gradient-to-r from-purple-950/40 via-slate-900 to-indigo-950/40 border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-purple-400" />
+                              <span className="text-sm font-bold text-white">Preview Full Experian CIR Report (Demo Simulation)</span>
+                            </div>
+                            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+                              You can test the full Experian CIR visualization right now — including the 785/900 credit score gauge, Prime Risk Tier, registered applicant profile, active credit accounts, and HDFC / ICICI / SBI tradelines.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleFetchData(true, true)}
+                            disabled={isFetchingData}
+                            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all flex items-center gap-2 shrink-0 justify-center cursor-pointer disabled:opacity-50"
+                          >
+                            <Sparkles className="w-4 h-4" />
+                            <span>Preview Demo Experian Bureau</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {result.experian.status === "IP_BLOCKED" && (
                       <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/30 text-xs text-rose-200 space-y-1">

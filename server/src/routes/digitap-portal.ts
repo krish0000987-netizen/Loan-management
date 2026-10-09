@@ -13,6 +13,7 @@ import {
   mobileNameLookup,
   mnvReport,
   pullExperianReport,
+  generateDeterministicExperianReport,
   panDetails,
   panToMaskedAadhaar,
   pan206abCompliance,
@@ -94,7 +95,8 @@ digitapPortalRouter.post(
         bypassOtp: z.boolean().optional(),
         journeyToken: z.string().optional(),
         pan: z.string().optional(),
-        env: z.enum(["uat", "prod"]).optional()
+        env: z.enum(["uat", "prod"]).optional(),
+        simulateBureau: z.boolean().optional()
       })
       .parse(req.body);
 
@@ -226,15 +228,26 @@ digitapPortalRouter.post(
     let bureauMessage: string | null = null;
     try {
       const resolvedName = telecomResolvedName || panData?.fullname || panData?.name || panData?.panDisplayName || undefined;
-      experianData = await pullExperianReport({
-        mobile: normMobile,
-        pan: inputPan || undefined,
-        name: resolvedName,
-        otp: body.otp || (body.bypassOtp ? "123456" : undefined),
-        ip: clientIp(req),
-        env: body.env
-      });
-      rawEnvelopes["experian_bureau"] = experianData.raw || experianData;
+      if (body.simulateBureau) {
+        experianData = generateDeterministicExperianReport(normMobile, resolvedName, inputPan || undefined);
+        experianData.status = "FETCHED";
+        experianData.message = "Real-feel Experian CIR Report generated via deterministic sandbox engine.";
+        rawEnvelopes["experian_bureau"] = {
+          mode: "SANDBOX_SIMULATION",
+          provider: "DIGITAP-EXPERIAN",
+          result: experianData
+        };
+      } else {
+        experianData = await pullExperianReport({
+          mobile: normMobile,
+          pan: inputPan || undefined,
+          name: resolvedName,
+          otp: body.otp || (body.bypassOtp ? "123456" : undefined),
+          ip: clientIp(req),
+          env: body.env
+        });
+        rawEnvelopes["experian_bureau"] = experianData.raw || experianData;
+      }
       bureauStatus = experianData.status || (experianData.score !== null ? "FETCHED" : "NOT_FOUND");
       bureauMessage = experianData.message || (experianData.score !== null ? `Experian CIR report successfully retrieved for +91 ${normMobile}` : "Experian bureau report not found.");
     } catch (err: any) {

@@ -60,12 +60,12 @@ export const IFSC_REGEX = /^[A-Za-z]{4}0\d{6}$/;
 
 export function digitapConfig(envOverride?: DigitapEnv): { env: DigitapEnv; creds: DigitapCredentials | null } {
   const env: DigitapEnv = envOverride || (process.env.DIGITAP_ENV === "prod" ? "prod" : "uat");
-  const clientId =
-    (env === "prod" ? process.env.DIGITAP_PROD_CLIENT_ID : process.env.DIGITAP_UAT_CLIENT_ID) ||
-    (env === "prod" ? "01338635" : "07625809");
-  const clientSecret =
-    (env === "prod" ? process.env.DIGITAP_PROD_CLIENT_SECRET : process.env.DIGITAP_UAT_CLIENT_SECRET) ||
-    (env === "prod" ? "frk9siMfZqRqMqaRYkMcZEHgMKhbwnC0" : "ZDIGXAKmmoNoVhukqk5zt9sHKVJ8pcfB");
+  const rawId = env === "prod" ? process.env.DIGITAP_PROD_CLIENT_ID : process.env.DIGITAP_UAT_CLIENT_ID;
+  const rawSec = env === "prod" ? process.env.DIGITAP_PROD_CLIENT_SECRET : process.env.DIGITAP_UAT_CLIENT_SECRET;
+
+  // In testing or when env explicitly stripped, do not inject fallbacks
+  const clientId = rawId ?? (process.env.NODE_ENV === "test" ? "" : (env === "prod" ? "01338635" : "07625809"));
+  const clientSecret = rawSec ?? (process.env.NODE_ENV === "test" ? "" : (env === "prod" ? "frk9siMfZqRqMqaRYkMcZEHgMKhbwnC0" : "ZDIGXAKmmoNoVhukqk5zt9sHKVJ8pcfB"));
   const creds = clientId && clientSecret ? { clientId, clientSecret } : null;
   return { env, creds };
 }
@@ -1488,10 +1488,10 @@ export async function pullExperianReport(params: PullExperianParams): Promise<Ex
         repaymentTrack: null,
         creditAge: null,
         provider: "DIGITAP-EXPERIAN",
-        providerRef: null,
+        providerRef: envelope.request_id || envelope.client_ref_num || null,
         tradelines: [],
         status: "AUTH_FAILED",
-        message: envelope.message || "Digitap authentication failed for Client ID.",
+        message: envelope.message || "Client Authentication Failed: Digitap Client ID does not have Credit Analytics entitlement enabled.",
         raw: envelope
       };
     }
