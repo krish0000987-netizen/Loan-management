@@ -349,7 +349,18 @@ export default function DigitapTestPortal() {
               <span>Step 1: Input Parameters</span>
             </h2>
             <div className="flex items-center gap-1.5 flex-wrap text-xs">
-              <span className="text-slate-400 hidden sm:inline">Experian UAT Dataset:</span>
+              <span className="text-slate-400 hidden sm:inline">Quick Test Numbers:</span>
+              <button
+                onClick={() => {
+                  setMobile("8838864869");
+                  setPan("ABCPE1234F");
+                  setOtp("123456");
+                }}
+                className="px-2.5 py-1 rounded bg-emerald-950/70 hover:bg-emerald-900 text-emerald-200 border border-emerald-600/50 font-mono text-[11px] transition-colors"
+                title="Telecom & CBDT Verified: Satyajeet Shashikant Kere / ABCPE1234F"
+              >
+                8838864869 (Satyajeet)
+              </button>
               <button
                 onClick={() => {
                   setMobile("7908096603");
@@ -422,7 +433,9 @@ export default function DigitapTestPortal() {
             <div className="md:col-span-3 space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                 <span>Customer PAN Number</span>
-                <span className="text-[11px] text-slate-400 font-normal">Optional</span>
+                <span className="text-[11px] text-slate-400 font-normal">
+                  Optional • <button type="button" onClick={() => setPan("ABCPE1234F")} className="text-cyan-400 hover:text-cyan-300 underline font-mono cursor-pointer">Quick Fill: ABCPE1234F</button>
+                </span>
               </label>
               <input
                 type="text"

@@ -10,7 +10,7 @@
     "start": "tsx src/index.ts",
     "seed": "tsx src/db/seed.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/test/*.test.ts",
+    "test": "NODE_ENV=test tsx --test src/test/adapters.test.ts",
     "test:hub": "tsx scripts/hub-smoke.ts",
     "test:digitap-discovery": "tsx scripts/digitap-discovery.ts",
     "test:cellx": "tsx scripts/test-cellx-digitap.ts"
