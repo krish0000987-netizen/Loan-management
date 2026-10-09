@@ -16,7 +16,7 @@ export function KycScreen({ journey, onSuccess }: KycScreenProps) {
   const [error, setError] = useState<string | null>(null);
   const [providerNote, setProviderNote] = useState<string | null>(null);
 
-  const pan = journey.customer_pan || journey.profile?.pan || "BZXPM1234F";
+  const pan = journey.customer_pan || journey.profile?.pan || "FAWPD4345T";
   const name = journey.customer_name || journey.profile?.full_name || "Krishna Vinod Mishra";
 
   const handleVerifyPan = async () => {

@@ -114,7 +114,7 @@ originationRouter.post(
       const custNo = "CUST" + new Date().getFullYear().toString().slice(2) + String(Math.floor(100000 + Math.random() * 899999));
       const newCustId = (await run(
         `INSERT INTO customers (tenant_id, customer_no, name, mobile, kyc_status, risk_class, credit_score, pan)
-         VALUES (?, ?, ?, ?, 'pending', 'standard', 782, 'BZXPM1234F')`,
+         VALUES (?, ?, ?, ?, 'pending', 'standard', 782, 'FAWPD4345T')`,
         [tenantId, custNo, candidateName, normMobile]
       )).lastId;
       customer = { id: newCustId, name: candidateName };
@@ -131,7 +131,7 @@ originationRouter.post(
     const defaultProfile = {
       full_name: customer.name !== "Applicant" ? customer.name : "Krishna Vinod Mishra",
       mobile: normMobile,
-      pan: "BZXPM1234F",
+      pan: "FAWPD4345T",
       dob: "1992-08-14",
       gender: "male",
       email: (customer.name !== "Applicant" ? customer.name : "krishna.mishra").toLowerCase().replace(/\s+/g, ".") + "@gmail.com",
@@ -326,7 +326,7 @@ originationRouter.post(
         `UPDATE customers
          SET name = ?,
              credit_score = ?,
-             pan = COALESCE(pan, 'BZXPM1234F'),
+             pan = COALESCE(pan, 'FAWPD4345T'),
              updated_at = datetime('now')
          WHERE id = ?`,
         [resolvedName, creditScore, cust.id]
@@ -365,11 +365,11 @@ originationRouter.post(
     const autoProfile = {
       full_name: resolvedName,
       mobile: journey.mobile,
-      pan: cust?.pan || "BZXPM1234F",
+      pan: cust?.pan || "FAWPD4345T",
       dob: "1992-08-14",
       gender: "male",
       email: `${emailName}@gmail.com`,
-      alt_mobile: "9820123456",
+      alt_mobile: "9876543210",
       alt_email: `${emailName}.personal@gmail.com`,
       aadhaar: "XXXXXXXX4921",
       address: mnvData?.registeredAddress || "Flat 402, Royal Residency, Andheri West",
@@ -588,7 +588,7 @@ originationRouter.get(
       gender: savedProfile.gender || "",
       email: cust?.email || savedProfile.email || "",
       alt_email: savedProfile.alt_email || "krishna.personal@gmail.com",
-      alt_mobile: savedProfile.alt_mobile || "9820123456",
+      alt_mobile: savedProfile.alt_mobile || "9876543210",
       pan: cust?.pan || savedProfile.pan || "",
       aadhaar: savedProfile.aadhaar || "XXXXXXXX4921",
       credit_score: cust?.credit_score || savedProfile.credit_score || 782,

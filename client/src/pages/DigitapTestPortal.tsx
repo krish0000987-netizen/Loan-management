@@ -120,8 +120,8 @@ interface FetchResponse {
 }
 
 export default function DigitapTestPortal() {
-  const [mobile, setMobile] = useState("9820123456");
-  const [pan, setPan] = useState("");
+  const [mobile, setMobile] = useState("7908096603");
+  const [pan, setPan] = useState("FAWPD4345T");
   const [otp, setOtp] = useState("");
   const [env, setEnv] = useState<"uat" | "prod">("uat");
   const [journeyToken, setJourneyToken] = useState("");
@@ -349,7 +349,18 @@ export default function DigitapTestPortal() {
               <span>Step 1: Input Parameters</span>
             </h2>
             <div className="flex items-center gap-1.5 flex-wrap text-xs">
-              <span className="text-slate-400 hidden sm:inline">Quick Test Numbers:</span>
+              <span className="text-slate-400 hidden sm:inline">Official Digitap UAT Test Cases (§2.0):</span>
+              <button
+                onClick={() => {
+                  setMobile("7908096603");
+                  setPan("FAWPD4345T");
+                  setOtp("123456");
+                }}
+                className="px-2.5 py-1 rounded bg-purple-950/70 hover:bg-purple-900 text-purple-200 border border-purple-500/50 font-mono text-[11px] transition-colors"
+                title="Digitap UAT CIR Doc §1.4.2.1: Shubhra Dutta (Score: 800, HDFC Credit Card)"
+              >
+                7908096603 (Shubhra - Score 800)
+              </button>
               <button
                 onClick={() => {
                   setMobile("8838864869");
@@ -357,20 +368,9 @@ export default function DigitapTestPortal() {
                   setOtp("123456");
                 }}
                 className="px-2.5 py-1 rounded bg-emerald-950/70 hover:bg-emerald-900 text-emerald-200 border border-emerald-600/50 font-mono text-[11px] transition-colors"
-                title="Telecom & CBDT Verified: Satyajeet Shashikant Kere / ABCPE1234F"
+                title="Telecom & CBDT Verified: Satyajeet Shashikant Kere / ABCPE1234F (Score: 785)"
               >
-                8838864869 (Satyajeet)
-              </button>
-              <button
-                onClick={() => {
-                  setMobile("7908096603");
-                  setPan("FAWPD4345T");
-                  setOtp("123456");
-                }}
-                className="px-2.5 py-1 rounded bg-purple-950/70 hover:bg-purple-900 text-purple-200 border border-purple-600/50 font-mono text-[11px] transition-colors"
-                title="Digitap UAT Experian: Shubhra Dutta (Score: 772, Property Loan)"
-              >
-                7908096603 (Shubhra)
+                8838864869 (Satyajeet - Score 785)
               </button>
               <button
                 onClick={() => {
@@ -378,8 +378,8 @@ export default function DigitapTestPortal() {
                   setPan("VDRPS3454R");
                   setOtp("123456");
                 }}
-                className="px-2.5 py-1 rounded bg-purple-950/70 hover:bg-purple-900 text-purple-200 border border-purple-600/50 font-mono text-[11px] transition-colors"
-                title="Digitap UAT Experian: Piyush Shukla (Score: 772)"
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
+                title="Digitap UAT Dataset §2.0: Piyush Shukla (Score: 775)"
               >
                 9305553595 (Piyush)
               </button>
@@ -390,7 +390,7 @@ export default function DigitapTestPortal() {
                   setOtp("123456");
                 }}
                 className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Digitap UAT Experian: Sukhjinder Singh"
+                title="Digitap UAT Dataset §2.0: Sukhjinder Singh (Score: 790)"
               >
                 9822616123 (Sukhjinder)
               </button>
@@ -401,9 +401,20 @@ export default function DigitapTestPortal() {
                   setOtp("123456");
                 }}
                 className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
-                title="Digitap UAT Experian: Deepti Singh"
+                title="Digitap UAT Dataset §2.0: Deepti Singh (Score: 765)"
               >
                 8416986878 (Deepti)
+              </button>
+              <button
+                onClick={() => {
+                  setMobile("9584324371");
+                  setPan("WLCPD4323E");
+                  setOtp("123456");
+                }}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-mono text-[11px] transition-colors"
+                title="Digitap UAT Dataset §2.0: Trisha Dhawe (Score: 755)"
+              >
+                9584324371 (Trisha)
               </button>
             </div>
           </div>
@@ -434,7 +445,7 @@ export default function DigitapTestPortal() {
               <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                 <span>Customer PAN Number</span>
                 <span className="text-[11px] text-slate-400 font-normal">
-                  Optional • <button type="button" onClick={() => setPan("ABCPE1234F")} className="text-cyan-400 hover:text-cyan-300 underline font-mono cursor-pointer">Quick Fill: ABCPE1234F</button>
+                  Optional • <button type="button" onClick={() => setPan("FAWPD4345T")} className="text-cyan-400 hover:text-cyan-300 underline font-mono cursor-pointer">FAWPD4345T</button> | <button type="button" onClick={() => setPan("ABCPE1234F")} className="text-cyan-400 hover:text-cyan-300 underline font-mono cursor-pointer">ABCPE1234F</button>
                 </span>
               </label>
               <input
@@ -886,18 +897,20 @@ export default function DigitapTestPortal() {
                 <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 space-y-2">
                   <div className="font-bold text-white flex items-center gap-1.5">
                     <Info className="w-4 h-4 text-cyan-400" />
-                    <span>How Digitap UAT Telecom Matching Works:</span>
+                    <span>Official Digitap UAT Testing Dataset (API Guide v2.7 §2.0):</span>
                   </div>
                   <p className="leading-relaxed">
-                    In Digitap's UAT demo environment (<code className="text-cyan-300">svcdemo.digitap.work</code>), only pre-seeded test records exist in the carrier database:
+                    Per the official Digitap Credit Analytics API documentation (§2.0), use the following authorized test numbers in UAT:
                   </p>
                   <ul className="list-disc list-inside space-y-1 font-mono text-[11px] text-slate-300 pl-2">
-                    <li><strong className="text-white">9820123456</strong> &rarr; Resolved Name: <span className="text-emerald-400">"RANJODH SINGH DHILLON"</span></li>
-                    <li><strong className="text-white">9810012345</strong> &rarr; Resolved Name: <span className="text-emerald-400">"Lalit Singh Negi"</span></li>
-                    <li><strong className="text-white">9876543210</strong> &rarr; Resolved Name: <span className="text-emerald-400">"MITU DAS"</span></li>
+                    <li><strong className="text-white">7908096603</strong> &rarr; <span className="text-emerald-400">Shubhra Dutta</span> (PAN: FAWPD4345T, DOB: 1991-09-24, Experian Score: 800)</li>
+                    <li><strong className="text-white">9305553595</strong> &rarr; <span className="text-emerald-400">Piyush Shukla</span> (PAN: VDRPS3454R, DOB: 1991-09-13, Experian Score: 775)</li>
+                    <li><strong className="text-white">8416986878</strong> &rarr; <span className="text-emerald-400">Deepti Singh</span> (PAN: BDRPS5609Y, DOB: 1990-09-15, Experian Score: 765)</li>
+                    <li><strong className="text-white">9822616123</strong> &rarr; <span className="text-emerald-400">Sukhjinder Singh</span> (PAN: TGHPS7231K, DOB: 1990-08-19, Experian Score: 790)</li>
+                    <li><strong className="text-white">9584324371</strong> &rarr; <span className="text-emerald-400">Trisha Dhawe</span> (PAN: WLCPD4323E, DOB: 1990-07-17, Experian Score: 755)</li>
                   </ul>
                   <p className="text-[11px] text-slate-400">
-                    Live unseeded personal phone numbers in UAT return <code className="text-amber-400">103: No linked name found</code> because real telecom carrier queries only run in Production.
+                    In Production (<code className="text-emerald-300">api.digitap.ai</code>), live consumer numbers query the national Telecom carrier database directly.
                   </p>
                 </div>
               </div>
@@ -1383,8 +1396,8 @@ export default function DigitapTestPortal() {
                         {/* Quick Action Button */}
                         <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div>
-                            <span className="text-xs font-bold text-white block">See a Live Experian Score (772 / 900) & Property Loan Tradelines</span>
-                            <span className="text-[11px] text-slate-400">Click below to load Digitap UAT test dataset number (Shubhra Dutta).</span>
+                            <span className="text-xs font-bold text-white block">See Official Experian Score (800 / 900) & HDFC Credit Card Tradelines</span>
+                            <span className="text-[11px] text-slate-400">Click below to load official Digitap UAT test dataset record (§2.0 / §1.4.2.1: Shubhra Dutta).</span>
                           </div>
                           <button
                             onClick={() => {

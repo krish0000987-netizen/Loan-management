@@ -19,7 +19,7 @@ async function runTest() {
 
   // 2. Test CellX SMS Dispatch
   console.log("\n[2] Testing CellX SMS Dispatch (TRAI DLT Template 1007719376278893769):");
-  const testMobile = "9820123456";
+  const testMobile = "7908096603";
   const testOtp = "654321";
   const smsResult = await sendSmsOtp(testMobile, testOtp);
   console.log("    - SMS Result:", smsResult);
@@ -46,7 +46,7 @@ async function runTest() {
 
   // 5. Test Experian Bureau Pull
   console.log(`\n[5] Testing Experian Bureau Pull:`);
-  const experian = await pullExperianReport({ mobile: testMobile, name: lookup.name || "Ranjodh Singh Dhillon" });
+  const experian = await pullExperianReport({ mobile: testMobile, name: lookup.name || "Shubhra Dutta" });
   console.log("    - Experian Result:", experian);
   console.log(`    ✓ Experian Credit Score: ${experian.score} (${experian.scoreBand})`);
 
@@ -54,7 +54,7 @@ async function runTest() {
   console.log(`\n[6] Testing PAN & Masked Aadhaar via Digitap APIs:`);
   try {
     const { panToMaskedAadhaar, panDetails } = await import("../src/adapters/digitap.js");
-    const testPan = "BZXPM1234F";
+    const testPan = "FAWPD4345T";
     try {
       const panRes = await panDetails({ pan: testPan });
       console.log("    - PAN Details:", panRes);

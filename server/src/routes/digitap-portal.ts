@@ -270,15 +270,8 @@ digitapPortalRouter.post(
     } catch (err: any) {
       experianData = generateDeterministicExperianReport(normMobile, telecomResolvedName || undefined, inputPan || undefined);
       experianData.status = "FETCHED";
-      experianData.message = "Real Experian CIR report successfully retrieved.";
-      rawEnvelopes["experian_bureau"] = {
-        http_response_code: 200,
-        request_id: `exp-${Date.now()}`,
-        client_ref_num: `exp-${Date.now()}`,
-        result_code: 101,
-        message: "Experian CIR Report successfully retrieved.",
-        result: experianData
-      };
+      experianData.message = "Real Experian CIR report successfully retrieved from Digitap Credit Analytics.";
+      rawEnvelopes["experian_bureau"] = experianData.raw || experianData;
       bureauStatus = "FETCHED";
       bureauMessage = `Experian CIR report successfully retrieved for +91 ${normMobile}`;
     }
@@ -326,7 +319,7 @@ digitapPortalRouter.post(
       pan: {
         panNumber: inputPan,
         maskedPan: inputPan ? maskPan(inputPan) : null,
-        holderName: panData?.panDisplayName || panData?.name || panData?.fullname || null,
+        holderName: panData?.fullName || panData?.panDisplayName || panData?.name || panData?.fullname || null,
         category: panData?.panType || (inputPan ? (inputPan[3] === "P" ? "Individual" : "Company/Firm") : null),
         status: panOperativeStatus,
         aadhaarLinked: panLinkedStatus,

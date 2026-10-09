@@ -10,9 +10,9 @@ async function testEndpoint() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mobile: "9820123456",
+          mobile: "7908096603",
           bypassOtp: true,
-          pan: "BZXPM1234F"
+          pan: "FAWPD4345T"
         })
       });
 
@@ -20,14 +20,15 @@ async function testEndpoint() {
       console.log("HTTP Status:", res.status);
       console.log("Response Success:", data.success);
       console.log("Subscriber Resolved:", data.identity?.subscriberName);
-      console.log("Carrier:", data.identity?.carrier);
+      console.log("PAN Holder Name:", data.pan?.holderName);
       console.log("Masked Aadhaar:", data.aadhaar?.maskedAadhaar);
       console.log("Aadhaar Linked to PAN:", data.aadhaar?.aadhaarLinkedToPan);
       console.log("PAN Status:", data.pan?.status);
       console.log("Experian Score:", data.experian?.score, `(${data.experian?.scoreBand})`);
       console.log("Active Accounts:", data.experian?.activeAccounts);
       console.log("Tradelines Count:", data.experian?.tradelines?.length);
-      console.log("Raw Envelopes Keys:", Object.keys(data.rawEnvelopes || {}));
+      console.log("Lender in Tradeline 1:", data.experian?.tradelines?.[0]?.lender, `(${data.experian?.tradelines?.[0]?.accountType})`);
+      console.log("Has INProfileResponse Envelope:", !!data.rawEnvelopes?.experian_bureau?.result?.result_json?.INProfileResponse);
       console.log("=== Endpoint Test Complete ===");
     } catch (err) {
       console.error("Test failed:", err);

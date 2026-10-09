@@ -16,7 +16,7 @@ export function ProfileScreen({ journey, onSuccess }: ProfileScreenProps) {
   const [email, setEmail] = useState(initial.email || "krishna.mishra@gmail.com");
   const [altEmail, setAltEmail] = useState(initial.alt_email || "krishna.alt@outlook.com");
   const [altMobile, setAltMobile] = useState(initial.alt_mobile || "9820011223");
-  const [pan, setPan] = useState(initial.pan || journey.customer_pan || "BZXPM1234F");
+  const [pan, setPan] = useState(initial.pan || journey.customer_pan || "FAWPD4345T");
   const [aadhaar, setAadhaar] = useState(initial.aadhaar || "XXXXXXXX9012");
 
   const [address, setAddress] = useState(initial.address || "Flat 402, Royal Residency, Andheri West");
@@ -94,7 +94,7 @@ export function ProfileScreen({ journey, onSuccess }: ProfileScreenProps) {
     }
     const cleanPan = pan.toUpperCase().trim();
     if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(cleanPan)) {
-      setError("Please enter a valid 10-character PAN number (e.g. BZXPM1234F).");
+      setError("Please enter a valid 10-character PAN number (e.g. FAWPD4345T).");
       return;
     }
     if (!pincode || pincode.length !== 6) {
@@ -218,7 +218,7 @@ export function ProfileScreen({ journey, onSuccess }: ProfileScreenProps) {
                 maxLength={10}
                 value={pan}
                 onChange={(e) => setPan(e.target.value.toUpperCase())}
-                placeholder="BZXPM1234F"
+                placeholder="FAWPD4345T"
                 required
                 className="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-700 rounded-xl text-white font-mono text-sm tracking-widest focus:outline-none focus:border-indigo-500"
               />
